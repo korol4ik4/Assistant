@@ -15,28 +15,40 @@ class Message:
 
     @text.setter
     def text(self, value):
-        self._text = value
+        if isinstance(value, str):
+            self._text = value
+        else:
+            raise(ValueError("Message.text must be a string"))
 
     @property
     def command(self):
         return self._command
 
-    @text.setter
+    @command.setter
     def command(self, value):
-        self._command = value
+        if isinstance(value, str):
+            self._command = value
+        else:
+            raise (ValueError("Message.text must be a string"))
 
     @property
     def sender(self):
         return self._message_sender
 
-    @text.setter
+    @sender.setter
     def sender(self, value):
-        self._message_sender = value
+        if isinstance(value, str):
+            self._message_sender = value
+        else:
+            raise (ValueError("Message.text must be a string"))
 
     @property
     def file_name(self):
         return self._file_name
 
-    @text.setter
+    @file_name.setter
     def file_name(self, value):
-        self._file_name = value
+        if isinstance(value, str):
+            self._file_name = value
+        else:
+            raise (ValueError("Message.text must be a string"))
