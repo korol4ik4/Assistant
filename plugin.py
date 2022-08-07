@@ -5,6 +5,7 @@
 from json_options import Options
 from event import Event
 from task import Task
+from message import Message
 
 import logging
 
@@ -35,21 +36,20 @@ class Plugin(object):
         self.task.update(task)
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
-    def on_command(self, *args):
+    def exe_command(self, message):
         pass
         # start_string = self.options['start_string'] #получение настроек
         # ваш код
         # ваш код
         # ваш код
         # создать событие после завершения
-        # self.say(data)
+        # self.say(message)
         # подписаться на событие
         # return self.return_task(task_type, keyword)
         # завладеть вниманием
-        # return self.return_task_mute_other(task_type, keyword)
 
-    def say(self, *data):  # возвращает событие
-        event = self.name, data
+    def say(self, message):  # возвращает событие
+        event = self.name, message
         self.event.add(event)  # list(тип, данные)
 
     def close(self):
