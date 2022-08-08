@@ -100,15 +100,15 @@ class Task:
 
         if state == 3:
             acc_fund = False
-            for kw, accs in event_tasks.items():
-                if acceptor in accs:
-                    new_value = extractor(acceptor, accs)
-                    if accs == new_value:
+            for keyword, acceptors in event_tasks.items():
+                if acceptor in acceptors:
+                    new_value = extractor(acceptor, acceptors)
+                    if acceptors == new_value:
                         return -3
                     if new_value:
-                        self._all_task[event_creator][kw] = new_value
+                        self._all_task[event_creator][keyword] = new_value
                     else:
-                        self._all_task[event_creator].pop(kw)
+                        self._all_task[event_creator].pop(keyword)
                     acc_fund = True
 
             if acc_fund:
