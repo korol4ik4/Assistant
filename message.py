@@ -8,6 +8,7 @@ class Message:
         self._command = ''
         self._message_sender = ''
         self._file_name = ''
+        self._keyword = ''
 
     @property
     def text(self):
@@ -52,3 +53,16 @@ class Message:
             self._file_name = value
         else:
             raise (ValueError("Message.text must be a string"))
+
+    @property
+    def keyword(self):
+        return self._keyword
+
+    @keyword.setter
+    def keywords(self, value):
+        if isinstance(value, str):
+            self._keyword = value
+        else:
+            raise (ValueError("Message.text must be a string"))
+
+

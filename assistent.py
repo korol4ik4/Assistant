@@ -20,7 +20,31 @@ class Assistant(object):
         self.load_plugins(path="plugin")  # имя директории с файлами плагинов
 
     def loop(self):
-        pass
+        self.logger.info("Дерево команд %s", Plugin.task().items())
+        try:
+            while True:
+                # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
+                new_event = Plugin.event.get()
+                if new_event:
+                    self.logger.info("Новое событие %s", new_event)
+                    # print('##event## ', new_event)
+                    # print('%%TasksBaum%% ', Plugin.task())
+                    new_tasks = self.event_analyse(new_event)
+                else:
+                    continue
+                if not new_tasks:
+                    continue
+                # есть что- то к исполнению
+                for class_name, keywords, message in new_tasks:
+                    if class_name in self.all_plugins:
+                        exe_func = self.all_plugins[class_name].on_command
+                        exe_func(message)
+                    else:
+                        continue
+        except KeyboardInterrupt:
+            # выгрузить plugins (например завершить thread vosk  )
+            for name, plug in self.all_plugins.items():
+                plug.close()
 
     def load_plugins(self, path):
         files_in_dir = os.listdir(path)  # Получаем список файлов в dir
