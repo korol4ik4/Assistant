@@ -6,6 +6,7 @@ import logging
 import sys
 import os
 from plugin import Plugin
+from utils.parser import keyword_search
 
 
 class Assistant(object):
@@ -40,22 +41,24 @@ class Assistant(object):
                 self.logger.info('Загружен %s', p.__class__)
                 # print("Loaded ", p.__class__)
 
-    def event_analyse(self, event):
-        event_type, text = event  # event список из event_type = имя плагина создавшего событие - text
+    @staticmethod
+    def event_analyse(event):
+        event_type, message = event  # event список из event_type = имя плагина создавшего событие - text
+        text = message.text
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
             to_execute = []
             for keyword in pre_task.keys():  # ключевые слова из ветки заданий
-                result = search(text, keyword)  # список найденных слова целиком
+                result = keyword_search(text, keyword)  # список найденных слова целиком
                 if result:  # ключевые слова найдены
                     pos = text.find(result[0])  # поиск позиции первого найденного слова
                     act_task = pre_task[keyword]  # принимающая функция / функции
                     for a_task in act_task.split(","):
-                        to_execute.append([pos, a_task, result, text])  # функция и данные для ее запуска
+                        to_execute.append([pos, a_task, result, message])  # функция и данные для ее запуска
             if to_execute:
                 # сортировка
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos
-                exe_order = [[fn, sres, in_arg] for pos, fn, sres, in_arg in exe_order]
+                exe_order = [[fn, sres, msg] for pos, fn, sres, msg in exe_order]
                 return exe_order
 
