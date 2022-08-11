@@ -59,10 +59,11 @@ class Message:
         return self._keyword
 
     @keyword.setter
-    def keywords(self, value):
+    def keyword(self, value):
         if isinstance(value, str):
             self._keyword = value
         else:
             raise (ValueError("Message.text must be a string"))
 
-
+    def __call__(self):
+        print(self.text, self.command, self.sender, self.file_name, self.keyword)
