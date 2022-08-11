@@ -16,16 +16,20 @@ class ConsoleInputPlugin(Plugin):
         msg.sender = self.name
         self.say(msg)
         print(msg)
+        self.input_command()
     #talk_to(self, to_name, keyword="*") # подписать plugin to_name на события от текущего plugin self.name
     #listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
 
     def input_command(self):
-        while True:
+        for i in range(3):
             msg = Message()
-            msg.text = input('введи команду')
+            msg.text = 'введи команду'
             msg.sender = self.name
+            msg.command = 'быстро'
+            msg.file_name = 'wav/82452ß9582ß9dj329.wav'
+            msg.keyword = "введи"
             self.say(msg)
 
     def exe_command(self, message):

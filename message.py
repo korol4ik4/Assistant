@@ -66,4 +66,4 @@ class Message:
             raise (ValueError("Message.text must be a string"))
 
     def __call__(self):
-        print(self.text, self.command, self.sender, self.file_name, self.keyword)
+        return (self.text, self.command, self.sender, self.file_name, self.keyword)
