@@ -60,10 +60,10 @@ class Message:
 
     @keyword.setter
     def keyword(self, value):
-        if isinstance(value, str):
+        if isinstance(value, list):
             self._keyword = value
         else:
-            raise (ValueError("Message.text must be a string"))
+            raise (ValueError("Message.keyword must be a list %s", value))
 
     def __call__(self):
         return (self.text, self.command, self.sender, self.file_name, self.keyword)

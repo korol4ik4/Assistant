@@ -39,7 +39,7 @@ class Assistant(object):
                 for class_name, keywords, message in new_tasks:
                     if class_name in self.all_plugins:
                         message.keyword = keywords
-                        exe_func = self.all_plugins[class_name].on_command
+                        exe_func = self.all_plugins[class_name].exe_command
                         exe_func(message)
                     else:
                         continue
