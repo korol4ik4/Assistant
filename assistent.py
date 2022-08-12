@@ -43,8 +43,9 @@ class Assistant(object):
                         exe_func(message)
                     else:
                         continue
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             # выгрузить plugins (например завершить thread vosk  )
+            self.logger.info("ВЫХОД")
             for name, plug in self.all_plugins.items():
                 plug.close()
 

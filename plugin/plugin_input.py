@@ -21,7 +21,7 @@ class ConsoleInputPlugin(Plugin):
     def exe_command(self, message):
         self.logger.debug("message : %s", message())
         if 'stop' in message.keyword:
-            raise KeyboardInterrupt()
+            raise KeyboardInterrupt('Выход')
         msg = Message()
         msg.text = input('введи команду ')
         msg.sender = self.name
