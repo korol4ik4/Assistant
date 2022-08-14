@@ -6,20 +6,29 @@ from message import Message
 from plugin import Plugin
 import logging
 
-class InputPlugin(Plugin):
+class ConsoleInputPlugin(Plugin):
     name = "INPUT"  # необходимо переопределить в каждом плагине
     default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
 
     def __init__(self):
-        super(InputPlugin, self).__init__()
+        super(ConsoleInputPlugin, self).__init__()
         self.logger = logging.getLogger("Assistant.Plugin.Input")
-        # self.talk_to('INPUT', keyword="*") # подписать plugin to_name на события от текущего plugin self.name
-        # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
+        self.exe_command(Message())
+        self.talk_to('INPUT', keyword="*") # подписать plugin to_name на события от текущего plugin self.name
+    #listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
+
     def exe_command(self, message):
         self.logger.debug("message : %s", message())
-        self.say(message)
+        if 'stop' in message.keyword:
+            raise KeyboardInterrupt('Выход')
+        msg = Message()
+        msg.text = input('введи команду ')
+        msg.sender = self.name
+        msg.command = 'быстро'
+        msg.file_name = 'wav/82452ß9582ß9dj329.wav'
+        self.say(msg)
         # start_string = self.options['start_string'] #получение настроек
         # ваш код
         # ваш код
