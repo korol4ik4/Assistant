@@ -8,7 +8,7 @@ import logging
 
 class InputPlugin(Plugin):
     name = "INPUT"  # необходимо переопределить в каждом плагине
-    default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
+    # default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
 
     def __init__(self):
         super(InputPlugin, self).__init__()
@@ -26,6 +26,3 @@ class InputPlugin(Plugin):
         # ваш код
         # создать событие после завершения
         # self.say(message)
-        # подписаться на событие
-        # return self.return_task(task_type, keyword)
-        # завладеть вниманием
