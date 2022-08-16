@@ -100,8 +100,11 @@ class STTVosk:
         except Exception as e:
             print(type(e).__name__ + ': ' + str(e))
 
-    def recognized(self, text):
-        print(text)
+    def from_file(self, file_name):
+        pass
+
+    def recognized(self, *args):
+        print(args)
 
 
 class SpeechToText(STTVosk):
