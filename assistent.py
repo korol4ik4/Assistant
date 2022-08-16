@@ -27,7 +27,7 @@ class Assistant(object):
                 new_event = Plugin.event.get()
                 if new_event:
                     send, msg = new_event
-                    self.logger.info("Новое событие %s, %s", send, msg())
+                    self.logger.debug("Новое событие %s, %s", send, msg())
                     # print('##event## ', new_event)
                     # print('%%TasksBaum%% ', Plugin.task())
                     new_tasks = self.event_analyse(new_event)
