@@ -5,6 +5,8 @@ import sys
 import json
 from threading import Thread
 
+from vosk import Model, KaldiRecognizer, SetLogLevel
+import subprocess
 
 class STTVosk:
     def __init__(self, lang="ru", device=None,
@@ -101,7 +103,26 @@ class STTVosk:
             print(type(e).__name__ + ': ' + str(e))
 
     def from_file(self, file_name):
-        pass
+        SetLogLevel(0)
+
+        #sample_rate = 16000
+        #model = Model(lang="ru")
+        #rec = KaldiRecognizer(model, sample_rate)
+        rec = self.rec
+        process = subprocess.Popen(['ffmpeg', '-loglevel', 'quiet', '-i',
+                                    file_name,
+                                    '-ar', str(self.sample_rate), '-ac', '1', '-f', 's16le', '-'],
+                                   stdout=subprocess.PIPE)
+        while True:
+            data = process.stdout.read(4000)
+            if len(data) == 0:
+                break
+            if rec.AcceptWaveform(data):
+                print(rec.Result())
+            else:
+                print(rec.PartialResult())
+
+        self.recognized(rec.FinalResult())
 
     def recognized(self, *args):
         print(args)
