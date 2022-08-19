@@ -90,7 +90,7 @@ class STTVosk:
                     if self.rec.AcceptWaveform(data):
                         result = json.loads(self.rec.Result())["text"]
                         if result:
-                            self.recognized(result)
+                            self.recognized(result,"LocMic")
                     else:
                         pass
                         # self.on_partial(self.rec.PartialResult()[17:-3])
@@ -102,7 +102,7 @@ class STTVosk:
         except Exception as e:
             print(type(e).__name__ + ': ' + str(e))
 
-    def from_file(self, file_name):
+    def from_file(self, file_name, sender = "LocFile"):
         SetLogLevel(0)
 
         #sample_rate = 16000
@@ -122,7 +122,7 @@ class STTVosk:
             else:
                 print(rec.PartialResult())
 
-        self.recognized(rec.FinalResult())
+        self.recognized(rec.FinalResult(), sender)
 
     def recognized(self, *args):
         print(args)
