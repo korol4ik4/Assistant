@@ -6,6 +6,9 @@ from message import Message
 from plugin import Plugin
 import logging
 from threading import Thread
+import pyautogui
+
+
 
 
 class TerminalInputPlugin(Plugin):
@@ -43,7 +46,7 @@ class TerminalInputPlugin(Plugin):
 
         except KeyboardInterrupt as e:
             # выгрузить plugins (например завершить thread vosk  )
-            self.logger.debug("ВЫХОД")
+            self.logger.debug("Выход")
 
 
     def start_terminal(self):
@@ -51,8 +54,11 @@ class TerminalInputPlugin(Plugin):
         self.thr.start()
 
     def close(self):
-        self.started = False
-        if self.thr:
-            self.thr.join()
-            self.thr = None
+        try:
+            self.started = False
+            if self.thr:
+                raise KeyboardInterrupt()
+        except KeyboardInterrupt as e:
+            self.logger.info("Выход")
+        pyautogui.press('enter')
 
