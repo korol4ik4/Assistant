@@ -43,10 +43,9 @@ class TerminalInputPlugin(Plugin):
                     msg.text = ''
                 if msg.text:
                     self.say(msg)
-
         except KeyboardInterrupt as e:
             # выгрузить plugins (например завершить thread vosk  )
-            self.logger.debug("Выход")
+            self.logger.debug("input loop break")
 
 
     def start_terminal(self):
@@ -54,11 +53,12 @@ class TerminalInputPlugin(Plugin):
         self.thr.start()
 
     def close(self):
-        try:
-            self.started = False
-            if self.thr:
-                raise KeyboardInterrupt()
-        except KeyboardInterrupt as e:
-            self.logger.info("Выход")
-        pyautogui.press('enter')
+        self.started = False
+        if self.thr:
+            self.logger.info("close signal")
+            #pyautogui.press('enter')
+            print("press Enter to Exit" )
+            self.thr.join()
+
+
 
