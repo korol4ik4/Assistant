@@ -10,7 +10,7 @@ import subprocess
 
 class STTVosk:
     def __init__(self, lang="ru", device=None,
-                 samplerate=16000, filename=None):
+                 samplerate=16000):
         self.que = queue.Queue()
         self.device = device
         try:
