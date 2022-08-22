@@ -2,6 +2,7 @@ import os
 import torch
 import sounddevice as sd
 import soundfile as sf
+import hashlib
 
 
 class TTSTacotron:
@@ -15,7 +16,6 @@ class TTSTacotron:
         model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "model")
         model.to(device)
         self.model = model
-
 
     def tell(self,text:str, pre_wav = None, speaker = 'kseniya'):
         if not text.strip():
@@ -39,6 +39,16 @@ class TTSTacotron:
         sd.play(audio, samplerate=sample_rate)
         sd.wait()
 
+    def tell_to_file(self,text,speaker = 'kseniya'):
+        _hash = hashlib.sha3_256()
+        _hash.update(text)
+        file_name = str(_hash.hexdigest()) + 'wav'
+        sample_rate = 48000
+
+        audio_paths = self.model.save_wav(text=text,
+                                     speaker=speaker,
+                                     sample_rate=sample_rate,
+                                     audio_path='test2.wav')
 '''
 t = TacotronTTS()
 t.tell('привет виталик')

@@ -15,7 +15,7 @@ class SpeechToTextPlugin(Plugin):
         self.logger = logging.getLogger("Assistant.Plugin.VoskSTTInput")
         self.stt = SpeechToText()
         self.stt.bind(self.voice_input)
-        self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
+        #self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
         self.stt.start()
 
     def voice_input(self, txt, *args):  # исполняется когда stt-vosk распознал предложение
