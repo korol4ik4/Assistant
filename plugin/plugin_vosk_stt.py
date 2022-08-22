@@ -35,11 +35,11 @@ class SpeechToTextPlugin(Plugin):
 
     def on_command(self, msg):
         cmd = msg.command
-        # print(cmd)
+        print(cmd)
         # отключить / включить распознавание, начать / остановить запись с микрофона (пока RAW данные)
         if "mute_on" in cmd:
             msg = Message()
-            msg.text = "mic_muted"
+            msg.command = "mic_muted"
             #self.stt.stop()
             self.stt.mute_on()
             self.say(msg)
@@ -47,10 +47,10 @@ class SpeechToTextPlugin(Plugin):
             #self.stt.start()
             self.stt.mute_off()
 
-        elif "record_vaw" in cmd:
+        elif "record_wav" in cmd:
             if msg.file_name:
                 self.stt.rec_wav(msg.file_name)
-        elif "record_vaw_stop" in cmd:
+        elif "record_wav_stop" in cmd:
             self.stt.rec_wav_stop()
 
         elif "recognize_from_file" in cmd:

@@ -9,7 +9,7 @@ class TTSTacotron:
     def __init__(self):
         device = torch.device('cpu')
         torch.set_num_threads(4)
-        local_file = 'plugin_src/model_ru.pt'
+        local_file = 'model/model_ru.pt'
         if not os.path.isfile(local_file):
             torch.hub.download_url_to_file('https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
                                            local_file)
@@ -39,16 +39,19 @@ class TTSTacotron:
         sd.play(audio, samplerate=sample_rate)
         sd.wait()
 
-    def tell_to_file(self,text,speaker = 'kseniya'):
-        _hash = hashlib.sha3_256()
-        _hash.update(text)
-        file_name = str(_hash.hexdigest()) + 'wav'
+    def tell_to_file(self,text, path_to_file = '', speaker = 'kseniya'):
+        _hash = hashlib.md5()  # sha3_256()
+        _hash.update(text.encode())
+        file_name = str(_hash.hexdigest()) + '.wav'
+        files_in_dir = os.listdir(path_to_file)
+        if file_name in files_in_dir:
+            return path_to_file + file_name
         sample_rate = 48000
-
         audio_paths = self.model.save_wav(text=text,
                                      speaker=speaker,
                                      sample_rate=sample_rate,
-                                     audio_path='test2.wav')
+                                     audio_path=path_to_file + file_name)
+        return audio_paths
 '''
 t = TacotronTTS()
 t.tell('привет виталик')
