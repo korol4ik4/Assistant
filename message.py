@@ -3,12 +3,12 @@
 
 
 class Message:
-    def __init__(self):
-        self._text = ''
-        self._command = ''
-        self._message_sender = ''
-        self._file_name = ''
-        self._keyword = ''
+    def __init__(self, text = '', command = '', message_sender = '', file_name = '', keyword = ''):
+        self._text = text
+        self._command = command
+        self._message_sender = message_sender
+        self._file_name = file_name
+        self._keyword = keyword
 
     @property
     def text(self):
