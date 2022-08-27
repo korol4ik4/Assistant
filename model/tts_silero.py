@@ -39,7 +39,7 @@ class TTSTacotron:
         sd.play(audio, samplerate=sample_rate)
         sd.wait()
 
-    def tell_to_file(self,text, path_to_file = '', speaker = 'kseniya'):
+    def tell_to_file(self, text, path_to_file = '', speaker = 'kseniya'):
         _hash = hashlib.md5()  # sha3_256()
         _hash.update(text.encode())
         file_name = str(_hash.hexdigest()) + '.wav'
@@ -47,10 +47,15 @@ class TTSTacotron:
         if file_name in files_in_dir:
             return path_to_file + file_name
         sample_rate = 48000
-        audio_paths = self.model.save_wav(text=text,
-                                     speaker=speaker,
-                                     sample_rate=sample_rate,
-                                     audio_path=path_to_file + file_name)
+        try:
+            audio_paths = self.model.save_wav(text=text,
+                                         speaker=speaker,
+                                         sample_rate=sample_rate,
+                                         audio_path=path_to_file + file_name)
+        except ValueError:
+            print("служебное сообщение")
+            audio_paths = None
+
         return audio_paths
 '''
 t = TacotronTTS()

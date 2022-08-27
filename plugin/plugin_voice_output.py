@@ -13,28 +13,29 @@ class VoiceOutputPlugin(Plugin):
         # Инициализация и запуск распознавания голоса
         self.logger = logging.getLogger("Assistant.Plugin.voice_output")
         self.listen_from('TTS')
+        self.listen_from('STT',keyword="_command_")
+        self.talk_to('STT',keyword="_command_")
         self.queue = []
-        self.listen_from('STT')
-        self.talk_to('STT')
+        self.msg_mic_on = Message(text= "_command_", command="mute_off")
+        self.msg_mic_off = Message(text="_command_", command="mute_on")
+
 
     def exe_command(self, message):
-        msg_on = Message()
-        msg_on.command = "mute_on"
-        msg_off = Message()
-        msg_off.command = "mute_off"
+        print("Message: ",message())
 
-        if message.command == "mic_muted":
-            if self.queue:
-                for file in self.queue:
-                    self.play_wav(message.file_name)
-                self.queue = []
-                self.say(msg_off)
-        elif message.file_name:
+        if message.file_name:
             self.queue.append(message.file_name)
-            self.say(msg_on)
+            self.say(self.msg_mic_off)
+        elif message.command == "mic_muted":
+            for file in self.queue:
+                self.play_wav(file)
+            self.queue = []
+            self.say(self.msg_mic_on)
 
+
+        #print(self.queue)
     @staticmethod
     def play_wav(file_name):
-        data, fs = sf.read(file_name, dtype='float32')
+        data, fs = sf.read(file_name)
         sd.play(data, fs)
         sd.wait()

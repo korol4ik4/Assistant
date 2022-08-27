@@ -18,7 +18,11 @@ class TextToSpeechPlugin(Plugin):
         if message.text:
             msg = message
             pfile = msg.file_name
-            msg.file_name = self.tts.tell_to_file(message.text, path_to_file="wav_cache/")
+            fn = self.tts.tell_to_file(message.text, path_to_file="wav_cache/")
+            if fn:
+                msg.file_name = fn
+            else:
+                return
             if pfile and msg.command == "pre_wav":
                 self.say(message)
             self.say(msg)

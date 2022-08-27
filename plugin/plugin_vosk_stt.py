@@ -33,29 +33,28 @@ class SpeechToTextPlugin(Plugin):
 
         return self.say(msg)  # добавляет распознанный текст в события. event = ("STT", txt)
 
-    def on_command(self, msg):
-        cmd = msg.command
-        print(cmd)
+    def exe_command(self, message):
+        cmd = message.command
         # отключить / включить распознавание, начать / остановить запись с микрофона (пока RAW данные)
         if "mute_on" in cmd:
-            msg = Message()
-            msg.command = "mic_muted"
+            msg = Message(text = "_command_", command = "mic_muted")
             #self.stt.stop()
             self.stt.mute_on()
             self.say(msg)
+
         elif "mute_off" in cmd:
             #self.stt.start()
             self.stt.mute_off()
 
         elif "record_wav" in cmd:
-            if msg.file_name:
-                self.stt.rec_wav(msg.file_name)
+            if message.file_name:
+                self.stt.rec_wav(message.file_name)
         elif "record_wav_stop" in cmd:
             self.stt.rec_wav_stop()
 
         elif "recognize_from_file" in cmd:
-            if msg.file_name:
-                self.stt.from_file(msg.file_name, msg.sender)
+            if message.file_name:
+                self.stt.from_file(message.file_name, message.sender)
 
     def close(self):  # выйти из бесконечного цикла (внутри модуля stt_vosk) перед закрытием программы / плагина
         self.stt.stop()

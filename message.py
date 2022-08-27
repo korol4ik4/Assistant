@@ -52,7 +52,7 @@ class Message:
         if isinstance(value, str):
             self._file_name = value
         else:
-            raise (ValueError("Message.text must be a string"))
+            raise (ValueError("Message.file_name must be a string"))
 
     @property
     def keyword(self):
