@@ -53,7 +53,7 @@ class TTSTacotron:
                                          sample_rate=sample_rate,
                                          audio_path=path_to_file + file_name)
         except ValueError:
-            print("служебное сообщение")
+            # print("служебное сообщение")
             audio_paths = None
 
         return audio_paths
