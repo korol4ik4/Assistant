@@ -19,21 +19,17 @@ class VoiceOutputPlugin(Plugin):
         self.msg_mic_on = Message(text= "_command_", command="mute_off")
         self.msg_mic_off = Message(text="_command_", command="mute_on")
 
-
     def exe_command(self, message):
-        print("Message: ",message())
-
         if message.file_name:
-            self.queue.append(message.file_name)
+            self.queue.append(message)
             self.say(self.msg_mic_off)
         elif message.command == "mic_muted":
-            for file in self.queue:
-                self.play_wav(file)
+            for msg in self.queue:
+                self.logger.info("Говорит: %s", msg.text)
+                self.play_wav(msg.file_name)
             self.queue = []
             self.say(self.msg_mic_on)
 
-
-        #print(self.queue)
     @staticmethod
     def play_wav(file_name):
         data, fs = sf.read(file_name)
