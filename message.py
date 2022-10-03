@@ -1,61 +1,3 @@
-#
-# объект класса Message служит контейнером сообщений для событий event
-
-
-class Message:
-    def __init__(self, text = '', command = '', message_sender = '', file_name = '', keyword = ''):
-        self._text = text
-        self._command = command
-        self._message_sender = message_sender
-        self._file_name = file_name
-        self._keyword = keyword
-
-    @property
-    def command(self):
-        return self._command
-
-    @command.setter
-    def command(self, value):
-        if isinstance(value, str):
-            self._command = value
-        else:
-            raise (ValueError("Message.text must be a string"))
-
-    @property
-    def sender(self):
-        return self._message_sender
-
-    @sender.setter
-    def sender(self, value):
-        if isinstance(value, str):
-            self._message_sender = value
-        else:
-            raise (ValueError("Message.text must be a string"))
-
-    @property
-    def file_name(self):
-        return self._file_name
-
-    @file_name.setter
-    def file_name(self, value):
-        if isinstance(value, str):
-            self._file_name = value
-        else:
-            raise (ValueError("Message.file_name must be a string"))
-
-    @property
-    def keyword(self):
-        return self._keyword
-
-    @keyword.setter
-    def keyword(self, value):
-        if isinstance(value, list):
-            self._keyword = value
-        else:
-            raise (ValueError("Message.keyword must be a list %s", value))
-
-    def __call__(self):
-        return self.text, self.command, self.sender, self.file_name, self.keyword
 
 #
 # объект класса Message служит контейнером сообщений для событий event
@@ -74,3 +16,24 @@ class Message:
 #               'message_sender' : '',
 #               'text' : ''
 #           }
+#
+# И абстрагируемся
+
+class Message:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, **kwargs):
+        if kwargs:
+            self.__dict__.update(kwargs)
+        return self.__dict__
+
+# Примеры применения
+'''
+msg = Message(message_sender = 'INPUT')
+d1 = msg()
+d2 = msg(text = "easy text")
+msg.id = 15
+del msg.text
+print(d1,"\n",d2,"\n"")
+'''
