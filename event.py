@@ -5,8 +5,8 @@ class Event:
         self.event_list = []
 
     def add(self, event):  # Добавить в список
-        if isinstance(event, (list, tuple)):
-            if len(event) == 2:
+        if isinstance(event, dict):
+            if 'message_sender' in event:
                 self.event_list.append(event)
                 return True
         return False

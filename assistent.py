@@ -26,8 +26,9 @@ class Assistant(object):
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
                 new_event = Plugin.event.get()
                 if new_event:
-                    send, msg = new_event
-                    self.logger.debug("Новое событие %s, %s", send, msg())
+                    send = new_event['message_sender']
+                    msg = new_event['text']
+                    self.logger.debug("Новое событие %s, %s", send, msg)
                     # print('##event## ', new_event)
                     # print('%%TasksBaum%% ', Plugin.task())
                     new_tasks = self.event_analyse(new_event)
@@ -38,7 +39,7 @@ class Assistant(object):
                 # есть что- то к исполнению
                 for class_name, keywords, message in new_tasks:
                     if class_name in self.all_plugins:
-                        message.keyword = keywords
+                        #message.keyword = keywords
                         exe_func = self.all_plugins[class_name].exe_command
                         exe_func(message)
                     else:
@@ -70,8 +71,8 @@ class Assistant(object):
 
     @staticmethod
     def event_analyse(event):
-        event_type, message = event  # event список из event_type = имя плагина создавшего событие - text
-        text = message.text
+        event_type= event['message_sender']  # event список из event_type = имя плагина создавшего событие - text
+        text = event['text']
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
@@ -82,7 +83,7 @@ class Assistant(object):
                     pos = text.find(result[0])  # поиск позиции первого найденного слова
                     act_task = pre_task[keyword]  # принимающая функция / функции
                     for a_task in act_task.split(","):
-                        to_execute.append([pos, a_task, result, message])  # функция и данные для ее запуска
+                        to_execute.append([pos, a_task, result, event])  # функция и данные для ее запуска
             if to_execute:
                 # сортировка
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos
