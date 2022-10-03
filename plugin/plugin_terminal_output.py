@@ -18,7 +18,7 @@ class TerminalOutputPlugin(Plugin):
     def __init__(self):
         super(TerminalOutputPlugin, self).__init__()
         self.logger = logging.getLogger("Assistant.Plugin.TerminalOutput")
-        self.listen_from('TERMINAL_INPUT', keyword="exit") # подписать plugin to_name на события от текущего plugin self.name
+        self.listen_from('TERMINAL_INPUT', keyword="") # подписать plugin to_name на события от текущего plugin self.name
         # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
