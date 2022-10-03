@@ -35,7 +35,7 @@ class TerminalInputPlugin(Plugin):
                 if not self.started:
                     raise KeyboardInterrupt()
                 # self.say(tinput)
-                self.msg(text=tinput)
+                self.msg(text=tinput, command = "read")
                 self.post_message(self.msg)
         except KeyboardInterrupt as e:
             # выгрузить plugins (например завершить thread vosk  )
