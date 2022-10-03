@@ -26,6 +26,7 @@ class Message:
     def __call__(self, **kwargs):
         if kwargs:
             self.__dict__.update(kwargs)
+            return self.__dict__
         return self.__dict__
 
 # Примеры применения

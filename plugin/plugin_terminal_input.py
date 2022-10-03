@@ -6,7 +6,7 @@ from plugin import Plugin
 import logging
 from threading import Thread
 import pyautogui
-
+from message import Message
 
 
 
@@ -22,6 +22,7 @@ class TerminalInputPlugin(Plugin):
         self.start_terminal()
         self.talk_to('INPUT', keyword="*") # подписать plugin to_name на события от текущего plugin self.name
         # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
+        self.msg = Message()
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
     def input_loop(self):
@@ -33,7 +34,9 @@ class TerminalInputPlugin(Plugin):
                 tinput = input('введи комманду \n')
                 if not self.started:
                     raise KeyboardInterrupt()
-                self.say(tinput)
+                # self.say(tinput)
+                self.msg(text=tinput)
+                self.post_message(self.msg)
         except KeyboardInterrupt as e:
             # выгрузить plugins (например завершить thread vosk  )
             self.logger.debug("input loop break")

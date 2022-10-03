@@ -24,4 +24,4 @@ class TerminalOutputPlugin(Plugin):
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
 
     def exe_command(self, message):
-        print("EXE COMMAND : ", message)
+        print("EXE COMMAND TerminalOutput : ", message)
