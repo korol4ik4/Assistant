@@ -56,8 +56,8 @@ class Plugin(object):
         event = msg()
         self.event.add(event)  # list(тип, данные)
 
-    def post_message(self, msg: Message):
-        msg(message_sender=self.name)
+    def post_message(self, **kwargs):
+        msg = Message(message_sender=self.name, **kwargs)
         event = msg()
         self.event.add(event)  # list(тип, данные)
 
