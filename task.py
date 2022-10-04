@@ -15,7 +15,7 @@ class Task:
 
     def mute_all(self):
         self._muted_task = self._all_task  # скидываем в буфер
-        self._all_task = self._not_muted_task # и добавляем не блокируемые задания как отмена
+        self._all_task = self._not_muted_task  # и добавляем не блокируемые задания как отмена
 
     def reset(self):
         self._all_task = self._muted_task  # достаём из буфера
@@ -49,10 +49,10 @@ class Task:
     # Функции удаления из словаря
     def delete(self, event_creator, acceptor='', keyword=''):
         def extractor(word, comma_string):
-            new_value = [v for v in comma_string.split(",") if v != word and v]
-            if new_value:
-                new_value = ','.join(new_value)
-                return new_value
+            new_elements = [v for v in comma_string.split(",") if v != word and v]
+            if new_elements:
+                new_elements = ','.join(new_elements)
+                return new_elements
 
         # state:
         # 0 - error, 1 - del_event_key, 2 - del_keyword,
@@ -67,7 +67,7 @@ class Task:
         # out_state:
         # 0 - ok(deleted), -1 - don't find event_key, -2 - don't find keyword,
         # -3 - don't find
-        #print("state ", state)
+        # print("state ", state)
         if state == 0:  # event_creator must be Name of Plugin
             return -1  # event_creator is '' or None or False etc.
         elif event_creator not in self._all_task:

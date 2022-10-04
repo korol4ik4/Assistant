@@ -49,13 +49,14 @@ class Plugin(object):
         # завладеть вниманием
 
     def say(self, text_message):  # возвращает событие
-        if not isinstance(text_message,str):
+        if not isinstance(text_message, str):
             return
         # msg = { 'message_sender': self.name, 'text': text_message}
-        msg = Message(message_sender = self.name, text = text_message)
+        msg = Message(message_sender=self.name, text=text_message)
         event = msg()
         self.event.add(event)  # list(тип, данные)
-    def post_message(self, msg : Message):
+
+    def post_message(self, msg: Message):
         msg(message_sender=self.name)
         event = msg()
         self.event.add(event)  # list(тип, данные)

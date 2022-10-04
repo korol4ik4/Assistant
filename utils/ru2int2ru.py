@@ -88,15 +88,15 @@ def under_thousand(dig: (int, str), gender='m'):
         raise e
     if dig > 999:
         raise ValueError('argument must be less than 1000')
-    digstr = str(dig)
-    hundread = ''
-    if len(digstr) == 3:
-        h_index = int(digstr[0]) - 1
-        hundread = hundreds[h_index]
-        digstr = digstr[1:]
+    dig_str = str(dig)
+    hundred = ''
+    if len(dig_str) == 3:
+        h_index = int(dig_str[0]) - 1
+        hundred = hundreds[h_index]
+        dig_str = dig_str[1:]
 
-    undhund = under_hundred(digstr, gender)
-    return hundread + " " + undhund
+    undhund = under_hundred(dig_str, gender)
+    return hundred + " " + undhund
 
 
 def int2ru(number: int, gender="m"):
@@ -105,11 +105,11 @@ def int2ru(number: int, gender="m"):
     minus_word = minus if number < 0 else ""
     # словарь следования
     # billion, million, thousand, hundreds, under hundred
-    numstr = str(abs(number))
-    lenum = len(numstr)
+    num_str = str(abs(number))
+    lenum = len(num_str)
     ords = lenum // 3
     len_next = lenum % 3
-    ru_number_string = ''  # under_hundred(numstr[:lenfist]) if lenfist > 0 else ''
+    ru_number_string = ''  # under_hundred(num_str[:lenfist]) if lenfist > 0 else ''
     start = 0
     # print(ords,lenfist)
     for i in range(ords, -1, -1):
@@ -117,7 +117,7 @@ def int2ru(number: int, gender="m"):
             gen = 'f' if i == 1 else 'm'
             if i == 0:
                 gen = gender
-            to_pars_uh = numstr[start:start+len_next]
+            to_pars_uh = num_str[start:start+len_next]
             start += len_next
             order_num = ""
             unthous = under_thousand(to_pars_uh, gender=gen)
@@ -128,7 +128,7 @@ def int2ru(number: int, gender="m"):
                     order_num = order[0]
                 if to_pars_uh.endswith(("2", "3", "4")) and not to_pars_uh.endswith(("12", "13", "14")):
                     order_num = order[1]
-                # убрать "один" из миллиард, миллион, тысяча
+                # убрать "один" из: миллиард, миллион, тысяча
                 if int(to_pars_uh) == 1:
                     unthous = ""
             ru_number_string += " " + unthous + " " + order_num
@@ -171,7 +171,7 @@ def int2numeric_ru(number: int, gender="m"):
     ]
 
     numeric_orders = [
-        "тысячн","миллионн", "миллиардн"
+        "тысячн", "миллионн", "миллиардн"
     ]
 
     # gender = "m" #mfn"  # мужской, женский, средний
@@ -188,7 +188,9 @@ def int2numeric_ru(number: int, gender="m"):
         if gender == "n":
             numic_units[3] = numic_units[3][:-2] + "ье"
 
-    add_ends = lambda lst, ends: list(l + ends for l in lst)
+    def add_ends(lst, ends):
+        return list(el + ends for el in lst)
+
     numic_teens = add_ends(numic_teens, endet)
     if gender == "m":
         numic_tens = add_ends(numic_tens, endet)
@@ -198,7 +200,7 @@ def int2numeric_ru(number: int, gender="m"):
         numic_tens = add_ends(numic_tens, endet)
 
     numic_hudres = add_ends(numic_hudres, endet)
-    numic_orders = add_ends(numeric_orders,endet)
+    numic_orders = add_ends(numeric_orders, endet)
     numeric_twenty = numic_units + numic_teens
 
     if abs(number) < 20:  # minus??
@@ -210,7 +212,7 @@ def int2numeric_ru(number: int, gender="m"):
     dig = 0
     for d in str(number)[::-1]:
         if int(d) == 0:
-            ords +=1
+            ords += 1
         else:
             dig = int(d)
             break
@@ -229,10 +231,8 @@ def int2numeric_ru(number: int, gender="m"):
     if 9 <= ords < 12:
         last_numeric = numic_orders[2]
     numeric_number = int2ru(number).split()[:-1] + [last_numeric]
-    #print(numic_orders, numic_hudres, numic_tens, numic_teens, numic_units)
+    # print(numic_orders, numic_hudres, numic_tens, numic_teens, numic_units)
     return ' '.join(numeric_number)
-
-
 
 
 #  Текст в инт #
@@ -440,6 +440,7 @@ def ru2int(txt):
         parsed_string.append(int_list[n])
         n += 1
     return " ".join(out_list), parsed_string
+
 
 '''
 text_num = "это привет как вас там ноль там сто семьдесят шесть семьдесят там сорок семьдесят четыре , сорок кажется да"

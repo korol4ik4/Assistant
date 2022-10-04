@@ -29,12 +29,15 @@ class Message:
             return self.__dict__
         return self.__dict__
 
-# Примеры применения
+
 '''
+# Example
 msg = Message(message_sender = 'INPUT')
 d1 = msg()
 d2 = msg(text = "easy text")
 msg.id = 15
-del msg.text
-print(d1,"\n",d2,"\n"")
+# del msg.text
+print(d1,"\n",d2,"\n")
+# {'message_sender': 'INPUT', 'text': 'easy text', 'id': 15} 
+# {'message_sender': 'INPUT', 'text': 'easy text', 'id': 15}
 '''

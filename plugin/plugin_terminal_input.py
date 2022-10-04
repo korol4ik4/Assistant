@@ -5,9 +5,7 @@
 from plugin import Plugin
 import logging
 from threading import Thread
-import pyautogui
 from message import Message
-
 
 
 class TerminalInputPlugin(Plugin):
@@ -20,27 +18,25 @@ class TerminalInputPlugin(Plugin):
         self.thr = None
         self.started = True
         self.start_terminal()
-        self.talk_to('INPUT', keyword="*") # подписать plugin to_name на события от текущего plugin self.name
+        self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
         # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
         self.msg = Message()
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
     def input_loop(self):
-        tinput = ''
-
+        text_input: str = ''
         try:
             while self.started:
-                self.logger.debug("command : %s", tinput)
-                tinput = input('введи комманду \n')
+                self.logger.debug("command : %s", text_input)
+                text_input = input('введи команду \n')
                 if not self.started:
                     raise KeyboardInterrupt()
-                # self.say(tinput)
-                self.msg(text=tinput, command = "read")
+                # self.say(text_input)
+                self.msg(text=text_input, command="read")
                 self.post_message(self.msg)
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             # выгрузить plugins (например завершить thread vosk  )
             self.logger.debug("input loop break")
-
 
     def start_terminal(self):
         self.thr = Thread(target=self.input_loop)
@@ -50,9 +46,6 @@ class TerminalInputPlugin(Plugin):
         self.started = False
         if self.thr:
             self.logger.info("close signal")
-            #pyautogui.press('enter')
-            print("press Enter to Exit" )
+            # pyautogui.press('enter')
+            print("press Enter to Exit")
             self.thr.join()
-
-
-

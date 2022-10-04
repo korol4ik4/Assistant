@@ -39,12 +39,11 @@ class Assistant(object):
                 # есть что- то к исполнению
                 for class_name, keywords, message in new_tasks:
                     if class_name in self.all_plugins:
-                        #message.keyword = keywords
                         exe_func = self.all_plugins[class_name].exe_command
                         exe_func(message)
                     else:
                         continue
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             # выгрузить plugins (например завершить thread vosk  )
             self.logger.info("ВЫХОД")
             for name, plug in self.all_plugins.items():
@@ -71,7 +70,7 @@ class Assistant(object):
 
     @staticmethod
     def event_analyse(event):
-        event_type= event['message_sender']  # event список из event_type = имя плагина создавшего событие - text
+        event_type = event['message_sender']  # event список из event_type = имя плагина создавшего событие - text
         text = event['text']
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
@@ -89,4 +88,3 @@ class Assistant(object):
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos
                 exe_order = [[fn, sres, msg] for pos, fn, sres, msg in exe_order]
                 return exe_order
-
