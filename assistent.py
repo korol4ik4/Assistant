@@ -5,8 +5,10 @@ from base_logger import get_base_logger
 import logging
 import sys
 import os
+import datetime
 from plugin import Plugin
 from utils.parser import keyword_search
+
 
 
 class Assistant(object):
@@ -28,7 +30,7 @@ class Assistant(object):
                 if new_event:
                     send = new_event['message_sender']
                     msg = new_event['text']
-                    self.logger.debug("Новое событие %s, %s", send, msg)
+                    self.logger.debug("%s : Новое событие %s, %s", datetime.datetime.now(), send, msg)
                     # print('##event## ', new_event)
                     # print('%%TasksBaum%% ', Plugin.task())
                     new_tasks = self.event_analyse(new_event)

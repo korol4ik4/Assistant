@@ -24,12 +24,13 @@ class TestInputPlugin(Plugin):
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
     def input_loop(self):
         n = 0
-
+        start_at = datetime.datetime.now()
         try:
             while self.started:
                 if not self.started:
                     raise KeyboardInterrupt()
-                if n== 255:
+                if n==100_000:
+                    print(start_at)
                     raise KeyboardInterrupt()
 
                 # self.say(text_input)
