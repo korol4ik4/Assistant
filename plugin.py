@@ -48,18 +48,18 @@ class Plugin(object):
         # return self.return_task(task_type, keyword)
         # завладеть вниманием
 
-    def say(self, text_message):  # возвращает событие
-        if not isinstance(text_message, str):
-            return
-        # msg = { 'message_sender': self.name, 'text': text_message}
-        msg = Message(message_sender=self.name, text=text_message)
-        event = msg()
-        self.event.add(event)  # list(тип, данные)
-
-    def post_message(self, **kwargs):
-        msg = Message(message_sender=self.name, **kwargs)
-        event = msg()
-        self.event.add(event)  # list(тип, данные)
+    def post_message(self, *args, **kwargs):
+        message = Message(sender=self.name, chain=[self.name])
+        if len(args):
+            if isinstance(args[0], Message):  # Если есть аргумент и он является Message
+                message = args[0]
+                chain = message.chain
+                chain.append(self.name)
+                message(sender=self.name, chain = chain)  # меняем имя отправителя и добавляем его в цепочке
+        message(** kwargs)  # добавляем именованные аргументы в сообщение
+        event = message
+        # print(event)
+        self.event.add(event)  # создаём событие (отправка сообщения)
 
     def close(self):
         # завершить если необходимо

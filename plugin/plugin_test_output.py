@@ -20,4 +20,6 @@ class TestOutputPlugin(Plugin):
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
 
     def exe_command(self, message):
-        self.logger.debug(" : %s, Out at : %s", message, datetime.datetime.now() )
+        self.logger.debug(" : %s", message() )
+        del message.title
+        self.post_message(message, text = "URRA!!")

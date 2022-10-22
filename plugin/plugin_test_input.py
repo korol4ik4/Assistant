@@ -29,8 +29,8 @@ class TestInputPlugin(Plugin):
             while self.started:
                 if not self.started:
                     raise KeyboardInterrupt()
-                if n==100_000:
-                    print(start_at)
+                if n==10:
+                    #print(start_at)
                     raise KeyboardInterrupt()
 
                 # self.say(text_input)
