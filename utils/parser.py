@@ -17,9 +17,9 @@ def keyword_search(text, key):
     if key == '':
         return [text, ]
     # преобразование key в регулярное выражение
-    if not (key[0] in "*?"):
+    if not (key[0] in "*"):
         key = r'\b' + key
-    if not (key[-1] in "*?"):
+    if not (key[-1] in "*"):
         key += r'\b'
     key = key.replace("*", r'\w*')
     key = key.replace("?", r'\w?')
