@@ -28,9 +28,7 @@ class Assistant(object):
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
                 new_event = Plugin.event.get()
                 if new_event:
-                    send = new_event['message_sender']
-                    msg = new_event['text']
-                    self.logger.debug("%s : Новое событие %s, %s", datetime.datetime.now(), send, msg)
+                    self.logger.debug("%s : Новое событие %s", datetime.datetime.now(), new_event())
                     # print('##event## ', new_event)
                     # print('%%TasksBaum%% ', Plugin.task())
                     new_tasks = self.event_analyse(new_event)
@@ -71,9 +69,16 @@ class Assistant(object):
                 # print("Loaded ", p.__class__)
 
     @staticmethod
-    def event_analyse(event):
-        event_type = event['message_sender']  # event список из event_type = имя плагина создавшего событие - text
-        text = event['text']
+    def event_analyse(message_event):
+        event = message_event()
+        try:
+            event_type = event['sender']  # event список из event_type = имя плагина создавшего событие - text
+        except:
+            return
+        try:
+            text = event['text']
+        except KeyError:
+            text = ''
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
@@ -84,7 +89,7 @@ class Assistant(object):
                     pos = text.find(result[0])  # поиск позиции первого найденного слова
                     act_task = pre_task[keyword]  # принимающая функция / функции
                     for a_task in act_task.split(","):
-                        to_execute.append([pos, a_task, result, event])  # функция и данные для ее запуска
+                        to_execute.append([pos, a_task, result, message_event])  # функция и данные для ее запуска
             if to_execute:
                 # сортировка
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos
