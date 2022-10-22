@@ -1,5 +1,5 @@
 from plugin import Plugin
-from model.tts_silero import TTSTacotron
+from moduls.tts_silero import TTSTacotron
 from message import Message
 import logging
 

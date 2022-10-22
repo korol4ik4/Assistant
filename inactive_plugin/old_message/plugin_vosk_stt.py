@@ -1,7 +1,7 @@
 #
 # Plugin SpeechToText
 from plugin import Plugin
-from model.stt_vosk import SpeechToText
+from moduls.stt_vosk import SpeechToText
 from message import Message
 import logging
 
