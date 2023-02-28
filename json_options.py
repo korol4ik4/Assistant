@@ -14,8 +14,15 @@ class Options(object):
             with open(file_name, 'r') as json_file:
                 self.options = json.load(json_file)
         except FileNotFoundError:
+            pass
+        if default_options != {}:
+            if self.options != default_options:
+                self.update_options(file_name, default_options)
             self.options = default_options
-            self.update_options(file_name, default_options)
+
+
+
+
 
         '''if self.options.keys() != default_options.keys():
             self.update(file_name, default_options)

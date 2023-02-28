@@ -40,6 +40,7 @@ class Assistant(object):
                 for class_name, keywords, message in new_tasks:
                     if class_name in self.all_plugins:
                         exe_func = self.all_plugins[class_name].exe_command
+                        message(search = keywords)
                         exe_func(message)
                     else:
                         continue
@@ -78,7 +79,7 @@ class Assistant(object):
         try:
             text = event['text']
         except KeyError:
-            text = ''
+            text = '_'
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка

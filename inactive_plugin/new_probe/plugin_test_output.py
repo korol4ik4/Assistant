@@ -8,7 +8,7 @@ import datetime
 
 class TestOutputPlugin(Plugin):
     name = "TEST_OUTPUT"  # необходимо переопределить в каждом плагине
-    # default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
+    default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
 
     def __init__(self):
         super(TestOutputPlugin, self).__init__()
@@ -22,4 +22,4 @@ class TestOutputPlugin(Plugin):
     def exe_command(self, message):
         self.logger.debug(" : %s", message() )
         del message.title
-        self.post_message(message, text = "URRA!!")
+        self.post_message(message, text = "URRA!!", cool = 3)

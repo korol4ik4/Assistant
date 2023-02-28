@@ -9,7 +9,7 @@ class TTSTacotron:
     def __init__(self):
         device = torch.device('cpu')
         torch.set_num_threads(4)
-        local_file = 'model/model_ru.pt'
+        local_file = 'moduls/model_ru.pt'
         if not os.path.isfile(local_file):
             torch.hub.download_url_to_file('https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
                                            local_file)
