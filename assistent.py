@@ -90,17 +90,6 @@ class Assistant(object):
                         if result:
                             pos = data.find(result[0])  # поиск позиции первого найденного слова
                             to_execute.append([pos, act_task, result, message_event])  # функция и данные для ее запуска
-                            '''
-            for keyword in pre_task.items():  # ключевые слова из ветки заданий
-                print("keyword ", keyword)
-                result = keyword_search(text, keyword)  # список найденных слова целиком
-                if result:  # ключевые слова найдены
-            
-                    pos = text.find(result[0])  # поиск позиции первого найденного слова
-                    act_task = pre_task[keyword]  # принимающая функция / функции
-                    for a_task in act_task.split(","):
-                        to_execute.append([pos, a_task, result, message_event])  # функция и данные для ее запуска
-                '''
             if to_execute:
                 # сортировка
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos
