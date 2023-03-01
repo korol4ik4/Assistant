@@ -5,9 +5,9 @@ from base_logger import get_base_logger
 import logging
 import sys
 import os
-import datetime
 from plugin import Plugin
 from utils.parser import keyword_search
+
 
 class Assistant(object):
 
@@ -38,7 +38,7 @@ class Assistant(object):
                 for class_name, keywords, message in new_tasks:
                     if class_name in self.all_plugins:
                         exe_func = self.all_plugins[class_name].exe_command
-                        message(search = keywords)
+                        message(search=keywords)
                         exe_func(message)
                     else:
                         continue
@@ -72,18 +72,18 @@ class Assistant(object):
         event = message_event()
         if 'sender' in event:
             event_type = event['sender']  # event список из event_type = имя плагина создавшего событие - text
-        else: # нет имени отправителя
+        else:  # нет имени отправителя
             return
 
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
             to_execute = []
-            for act_task,keyword in pre_task.items():
+            for act_task, keyword in pre_task.items():
                 for tl, kw in keyword.items():
                     if tl in event:
                         data = event[tl]
-                        result = keyword_search(data,kw)
+                        result = keyword_search(data, kw)
                         if result:
                             pos = data.find(result[0])  # поиск позиции первого найденного слова
                             to_execute.append([pos, act_task, result, message_event])  # функция и данные для ее запуска
