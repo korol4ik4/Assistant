@@ -80,7 +80,6 @@ class Assistant(object):
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
-            print("pre_task ", pre_task)
             to_execute = []
             for act_task,keyword in pre_task.items():
                 for tl, kw in keyword.items():
