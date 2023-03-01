@@ -77,10 +77,6 @@ class Assistant(object):
         except:
             return
 
-        try:
-            text = event['text']
-        except KeyError:
-            text = '_'
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка

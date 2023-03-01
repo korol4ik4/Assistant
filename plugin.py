@@ -24,12 +24,16 @@ class Plugin(object):
             self.options = Options(self.name, self.default_options, path="plugin_options").get()
 
     def talk_to(self, to_name, **keyword):  # подписать plugin to_name на события от текущего plugin self.name
+        if len(keyword) < 1:
+            keyword = {'text': '*'}
         task = {self.name: {
             to_name : keyword
         }}
         self.task.update(task)
 
     def listen_from(self, from_name, **keyword):  # подписаться на события от plugin from_name
+        if len(keyword) < 1:
+            keyword = {'text': '*'}  # default
         task = {from_name: {
             self.name : keyword
         }}
