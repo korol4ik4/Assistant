@@ -2,7 +2,6 @@
 # Plugin SpeechToText
 from plugin import Plugin
 from moduls.stt_vosk import SpeechToText
-from message import Message
 import logging
 
 
@@ -43,7 +42,7 @@ class SpeechToTextPlugin(Plugin):
 
             #self.stt.stop()
             self.stt.mute_on()
-            self.post_message(info = "mic_muted")
+            self.post_message(info = "mic_off")
 
         elif cmd == "mute_off":
             #self.stt.start()

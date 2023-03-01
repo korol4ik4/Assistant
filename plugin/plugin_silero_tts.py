@@ -23,7 +23,7 @@ class TextToSpeechPlugin(Plugin):
             if len(message.text) > 1:
                 self.txt_to_speech = message.text
                 self.post_message(command="mute")
-        if "info" in message() and message.info == "mic_muted":
+        if "info" in message() and message.info == "mic_off":
             if self.txt_to_speech:
                 self.logger.debug(self.txt_to_speech)
                 #kseniya, aidar, baya, xenia, eugene, random
