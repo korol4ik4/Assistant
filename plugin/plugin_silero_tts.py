@@ -14,7 +14,7 @@ class TextToSpeechPlugin(Plugin):
         self.tts = TTSTacotron()
 
         self.listen_from('STT',info = 'mic*')  # _ -когда есть info,
-        self.talk_to('STT', command = 'mute*') # попсылать комманды вкл./откл. микрофон
+        self.talk_to('STT', command = 'mute*') # посылать команды вкл./откл. микрофон
         self.txt_to_speech=""
 
     def exe_command(self, message):
