@@ -65,8 +65,8 @@ class STTVosk:
             if status:
                 print(status, file=sys.stderr)
 
-            if not self._off_recognize:
-                self.que.put(bytes(indata))
+            #if not self._off_recognize:
+            self.que.put(bytes(indata))
 
         try:
             with sd.RawInputStream(samplerate=self.samplerate, blocksize=8000, device=self.device, dtype='int16',
@@ -90,7 +90,7 @@ class STTVosk:
                     if self.rec.AcceptWaveform(data):
                         result = json.loads(self.rec.Result())["text"]
                         if result:
-                            self.recognized(result,"LocMic")
+                            self.recognized(result,"local_mic")
                     else:
                         pass
                         # self.on_partial(self.rec.PartialResult()[17:-3])
@@ -102,28 +102,27 @@ class STTVosk:
         except Exception as e:
             print(type(e).__name__ + ': ' + str(e))
 
-    def from_file(self, file_name, sender = "LocFile"):
-        SetLogLevel(0)
+    def from_file(self, file_name, sender = "file:"):
+        def ff(self, file_name, sender = "file:"):
+            SetLogLevel(0)
+            #sample_rate = 16000
+            #model = Model(lang="ru")
+            #rec = KaldiRecognizer(model, sample_rate)
+            rec = self.rec
+            process = subprocess.Popen(['ffmpeg', '-loglevel', 'quiet', '-i',
+                                        file_name,
+                                        '-ar', str(self.sample_rate), '-ac', '1', '-f', 's16le', '-'],
+                                       stdout=subprocess.PIPE)
+            while True:
+                data = process.stdout.read(4000)
+                if len(data) == 0:
+                    break
+                if rec.AcceptWaveform(data):
+                    print(rec.Result())
+                else:
+                    print(rec.PartialResult())
 
-        #sample_rate = 16000
-        #model = Model(lang="ru")
-        #rec = KaldiRecognizer(model, sample_rate)
-        rec = self.rec
-        process = subprocess.Popen(['ffmpeg', '-loglevel', 'quiet', '-i',
-                                    file_name,
-                                    '-ar', str(self.sample_rate), '-ac', '1', '-f', 's16le', '-'],
-                                   stdout=subprocess.PIPE)
-        while True:
-            data = process.stdout.read(4000)
-            if len(data) == 0:
-                break
-            if rec.AcceptWaveform(data):
-                print(rec.Result())
-            else:
-                print(rec.PartialResult())
-
-        self.recognized(rec.FinalResult(), sender)
-
+            self.recognized(rec.FinalResult(), sender+file_name)
     def recognized(self, *args):
         print(args)
 

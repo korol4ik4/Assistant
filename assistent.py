@@ -9,8 +9,6 @@ import datetime
 from plugin import Plugin
 from utils.parser import keyword_search
 
-
-
 class Assistant(object):
 
     def __init__(self):
@@ -72,9 +70,9 @@ class Assistant(object):
     @staticmethod
     def event_analyse(message_event):
         event = message_event()
-        try:
+        if 'sender' in event:
             event_type = event['sender']  # event список из event_type = имя плагина создавшего событие - text
-        except:
+        else: # нет имени отправителя
             return
 
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
