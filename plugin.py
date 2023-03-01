@@ -23,15 +23,15 @@ class Plugin(object):
             # загрузка настроек
             self.options = Options(self.name, self.default_options, path="plugin_options").get()
 
-    def talk_to(self, to_name, keyword="*"):  # подписать plugin to_name на события от текущего plugin self.name
+    def talk_to(self, to_name, **keyword):  # подписать plugin to_name на события от текущего plugin self.name
         task = {self.name: {
-            keyword: to_name
+            to_name : keyword
         }}
         self.task.update(task)
 
-    def listen_from(self, from_name, keyword="*"):  # подписаться на события от plugin from_name
+    def listen_from(self, from_name, **keyword):  # подписаться на события от plugin from_name
         task = {from_name: {
-            keyword: self.name
+            self.name : keyword
         }}
         self.task.update(task)
 

@@ -22,7 +22,7 @@ class Assistant(object):
         self.load_plugins(path="plugin")  # имя директории с файлами плагинов
 
     def loop(self):
-        self.logger.info("Дерево команд %s", Plugin.task().items())
+        self.logger.info("Дерево команд %s", Plugin.task())
         try:
             while True:
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
@@ -76,6 +76,7 @@ class Assistant(object):
             event_type = event['sender']  # event список из event_type = имя плагина создавшего событие - text
         except:
             return
+
         try:
             text = event['text']
         except KeyError:
@@ -83,14 +84,27 @@ class Assistant(object):
         tasks = Plugin.task()  # Plugin.task = Задания - переменная класса, общая для всех потомков (плагинов)
         pre_task = tasks.get(event_type)  # ветка заданий по заданному типу
         if pre_task:  # если есть такая ветка
+            print("pre_task ", pre_task)
             to_execute = []
-            for keyword in pre_task.keys():  # ключевые слова из ветки заданий
+            for act_task,keyword in pre_task.items():
+                for tl, kw in keyword.items():
+                    if tl in event:
+                        data = event[tl]
+                        result = keyword_search(data,kw)
+                        if result:
+                            pos = data.find(result[0])  # поиск позиции первого найденного слова
+                            to_execute.append([pos, act_task, result, message_event])  # функция и данные для ее запуска
+                            '''
+            for keyword in pre_task.items():  # ключевые слова из ветки заданий
+                print("keyword ", keyword)
                 result = keyword_search(text, keyword)  # список найденных слова целиком
                 if result:  # ключевые слова найдены
+            
                     pos = text.find(result[0])  # поиск позиции первого найденного слова
                     act_task = pre_task[keyword]  # принимающая функция / функции
                     for a_task in act_task.split(","):
                         to_execute.append([pos, a_task, result, message_event])  # функция и данные для ее запуска
+                '''
             if to_execute:
                 # сортировка
                 exe_order = sorted(to_execute, key=lambda x: x[0])  # сортировка по pos

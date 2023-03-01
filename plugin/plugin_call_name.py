@@ -20,7 +20,7 @@ class NamePlugin(Plugin):
         else:
             self.logger.info("don't find name for Assistent, name = 'ассистент'")
             name = "ассистент"
-        self.listen_from('STT', keyword= name)
+        self.listen_from('STT', text = name)
         # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
