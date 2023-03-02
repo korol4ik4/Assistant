@@ -12,9 +12,16 @@ class SpeechToTextPlugin(Plugin):
         super(SpeechToTextPlugin, self).__init__()
         # Инициализация и запуск распознавания голоса
         self.logger = logging.getLogger("Assistant.Plugin.VoskSTTInput")
-        self.stt = SpeechToText()
+        self.stt = None
+        self.set_lang(lang='ru')#lang
+
+
+    def set_lang(self, lang):
+        if self.stt:
+            self.close()
+        self.stt = SpeechToText(lang=lang)
         self.stt.bind(self.voice_input)
-        #self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
+        # self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
         self.stt.start()
 
     def voice_input(self, txt, *args):  # исполняется когда stt-vosk распознал предложение
@@ -60,6 +67,8 @@ class SpeechToTextPlugin(Plugin):
                 self.stt.from_file(message.file_name, message.sender)
 
     def close(self):  # выйти из бесконечного цикла (внутри модуля stt_vosk) перед закрытием программы / плагина
-        self.stt.stop()
-        self.logger.info("Выход")
+        if self.stt:
+            self.stt.stop()
+            self.logger.info("Выход")
+            self.stt = None
 

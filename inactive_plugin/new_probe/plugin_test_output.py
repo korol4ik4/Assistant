@@ -9,7 +9,6 @@ import datetime
 class TestOutputPlugin(Plugin):
     name = "TEST_OUTPUT"  # необходимо переопределить в каждом плагине
     default_options = {}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
-
     def __init__(self):
         super(TestOutputPlugin, self).__init__()
         self.logger = logging.getLogger("Assistant.Plugin.TestOutput")

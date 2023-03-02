@@ -6,24 +6,34 @@ import hashlib
 
 
 class TTSTacotron:
-    def __init__(self):
+    def __init__(self, lang):
+        self.model = self.model_init(lang=lang)
+
+    def model_init(self, lang):
+        model_url = {
+            'ru': 'https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
+            'de': 'https://models.silero.ai/models/tts/de/v3_de.pt'
+        }
+        if lang in model_url:
+            url = model_url[lang]
+        else:
+            raise ValueError("Don't find language ", lang)
         device = torch.device('cpu')
         torch.set_num_threads(4)
-        local_file = 'moduls/model_ru.pt'
+        local_file = 'moduls/model_' + lang + '.pt'
         if not os.path.isfile(local_file):
-            torch.hub.download_url_to_file('https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
-                                           local_file)
+            torch.hub.download_url_to_file(url,local_file)
         model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "model")
         model.to(device)
-        self.model = model
-
+        return model
     def tell(self,text:str, pre_wav = None, speaker = 'kseniya'):
         if not text.strip():
             print("нечего говорить")
             return
         sample_rate = 48000
-        #speaker = ['aidar', 'baya', 'kseniya',
-        #           'xenia', 'eugene', 'random']
+        #speaker = ru : ('aidar', 'baya', 'kseniya',
+        #           'xenia', 'eugene', 'random')
+        #speaker = de : (bernd_ungerer, eva_k, friedrich, hokuspokus, karlsson, random)
         put_accent = True
         put_yo = True
 

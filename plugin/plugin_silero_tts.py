@@ -11,11 +11,14 @@ class TextToSpeechPlugin(Plugin):
         super(TextToSpeechPlugin, self).__init__()
         # Инициализация и запуск распознавания голоса
         self.logger = logging.getLogger("Assistant.Plugin.silero_tts")
-        self.tts = TTSTacotron()
-
+        self.tts = None
+        self.set_lang(lang='ru')
         self.listen_from('STT',info = 'mic*')  # _ -когда есть info,
         self.talk_to('STT', command = 'mute*') # посылать команды вкл./откл. микрофон
         self.txt_to_speech=""
+
+    def set_lang(self,lang):
+        self.tts = TTSTacotron(lang=lang)
 
     def exe_command(self, message):
         #self.logger.debug(message.text)
