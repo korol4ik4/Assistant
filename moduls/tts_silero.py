@@ -11,17 +11,19 @@ class TTSTacotron:
 
     def model_init(self, lang):
         model_url = {
-            'ru': 'https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
-            'de': 'https://models.silero.ai/models/tts/de/v3_de.pt'
+            'ru' : 'https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
+            'de' : 'https://models.silero.ai/models/tts/de/v3_de.pt',
+            'en' : 'https://models.silero.ai/models/tts/en/v3_en.pt',
         }
-        if lang in model_url:
-            url = model_url[lang]
-        else:
-            raise ValueError("Don't find language ", lang)
+
         device = torch.device('cpu')
         torch.set_num_threads(4)
         local_file = 'moduls/model_' + lang + '.pt'
         if not os.path.isfile(local_file):
+            if lang in model_url:
+                url = model_url[lang]
+            else:
+                raise ValueError("Don't find language ", lang)
             torch.hub.download_url_to_file(url,local_file)
         model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "model")
         model.to(device)
@@ -36,7 +38,7 @@ class TTSTacotron:
         #speaker = de : (bernd_ungerer, eva_k, friedrich, hokuspokus, karlsson, random)
         put_accent = True
         put_yo = True
-
+        print(text)
         audio = self.model.apply_tts(text=text,
                                 speaker=speaker,
                                 sample_rate=sample_rate,

@@ -8,7 +8,7 @@ from threading import Thread
 import subprocess
 
 class STTVosk:
-    def __init__(self, lang="ru", device=None,
+    def __init__(self, lang, device=None,
                  samplerate=16000):
         self.que = queue.Queue()
         self.device = device
