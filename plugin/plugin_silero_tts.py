@@ -47,25 +47,3 @@ class TextToSpeechPlugin(Plugin):
                 self.tts.tell(self.txt_to_speech, speaker = self.speaker)
                 self.post_message(command="mute_off")
                 self.txt_to_speech =""
-        '''
-        if "command" in message():
-            command = message.command
-            if 'language_' in command:
-                lang = command[len('language_'):]
-                self.set_lang(lang)
-                self.txt_to_speech =''
-        '''
-        ''' if message.text:
-            msg = message
-            pfile = msg.file_name
-            fn = self.tts.tell_to_file(message.text, path_to_file="wav_cache/")
-            if fn:
-                msg.file_name = fn
-            else:
-                return
-            if pfile and msg.command == "pre_wav":
-                self.say(message)
-            self.say(msg)
-            if pfile and msg.command == "post_wav":
-                self.say(message)
-            '''
