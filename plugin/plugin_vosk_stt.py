@@ -29,19 +29,6 @@ class SpeechToTextPlugin(Plugin):
         self.stt.start()
 
     def voice_input(self, txt, *args):  # исполняется когда stt-vosk распознал предложение
-        '''
-        msg = Message()
-        msg.text = txt
-        if args:
-            if args[0] == "LocMic" or args[0] == "LocFile":
-                msg.sender = self.name
-            else:
-                msg.sender = args[0]
-
-        # Логирование если нужно
-        # logger = logging.getLogger(self.logger.name + " " + self.name + " voice_input_function")
-        # logger.debug("Распознано: '%s'", txt)
-'''
         return self.post_message(text=txt,args=args,lang=self.language)  # добавляет распознанный текст в события. event = ("STT", txt)
 
     def exe_command(self, message):

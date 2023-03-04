@@ -10,6 +10,12 @@ import datetime
 class ChangeLanguagePlugin(Plugin):
     name = "LANGUAGE"  # необходимо переопределить в каждом плагине
       # можно переопределить для сохранения/ручного редактирования и загрузки настроек
+    _ru = '*мен* язык*'
+    _de= 'sprach* *ände*'
+    _en= 'chang* lang*'
+    _or = '|'
+    search_key = _ru + _or + _de + _or + _en
+
     ling_lang = {'ru' : {'немец':'de','англи' : 'en', 'русс':'ru',},
                  'de' : {'russ':'ru', 'engl' : 'en','deut':'de',},
                  'en' : {'russ':'ru', 'german' : 'de', 'engl' : 'en', },
@@ -27,7 +33,7 @@ class ChangeLanguagePlugin(Plugin):
         super(ChangeLanguagePlugin, self).__init__()
         self.logger = logging.getLogger("Assistant.Plugin.Language")
         # подписать plugin to_name на события от текущего plugin self.name
-        self.listen_from('NAME', text = '*мени язык*|sprach* *ände*|chang* lang*')
+        self.listen_from('NAME', text = self.search_key)
         self.talk_to('STT', command='language_*')
         self.talk_to('TTS',text='*')
         self.talk_to('CONTEXT', command='on_context')
@@ -47,9 +53,6 @@ class ChangeLanguagePlugin(Plugin):
                     new_lang = lang_prefix
             if new_lang:
                 return new_lang
-
-
-
 
     def exe_command(self, message):
         #self.logger.debug("listen from CONTEXT", self.task())

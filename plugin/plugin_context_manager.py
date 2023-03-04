@@ -23,7 +23,6 @@ class ContextPlugin(Plugin):
 
     def exe_command(self, message):
         #self.logger.debug(" : %s", message() )
-        #self.logger.debug("listen from CONTEXT " + str(self.task()))
         if "command" in message():
             if message.command == "on_context":
                 self.on_context = True
