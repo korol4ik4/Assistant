@@ -14,6 +14,7 @@ class SpeechToTextPlugin(Plugin):
         self.language = 'ru'
         self.logger = logging.getLogger("Assistant.Plugin.VoskSTTInput")
         self.stt = None
+        self.listen_from('NAME')
         self.set_lang(lang=self.language)#lang
 
 
@@ -23,6 +24,7 @@ class SpeechToTextPlugin(Plugin):
         self.stt = SpeechToText(lang=lang)
         self.language = lang
         self.stt.bind(self.voice_input)
+        #self.listen_from('NAME')
         # self.talk_to('INPUT', keyword="*")  # подписать plugin to_name на события от текущего plugin self.name
         self.stt.start()
 
@@ -47,24 +49,24 @@ class SpeechToTextPlugin(Plugin):
         if "command" in message():
             cmd = message.command
         # отключить / включить распознавание, начать / остановить запись с микрофона (пока RAW данные)
-        if cmd == "mute_on":
+        if cmd == "on_mute":
 
             #self.stt.stop()
             self.stt.mute_on()
             self.post_message(info = "mic_off")
 
-        elif cmd == "mute_off":
+        elif cmd == "off_mute":
             #self.stt.start()
             self.stt.mute_off()
             self.post_message(info="mic_on")
 
-        elif "record_wav" in cmd:
+        elif "on_record_wav" in cmd:
             if message.file_name:
                 self.stt.rec_wav(message.file_name)
-        elif "record_wav_stop" in cmd:
+        elif "off_record_wav" in cmd:
             self.stt.rec_wav_stop()
 
-        elif "recognize_from_file" in cmd:
+        elif "from_file_recognize" in cmd:
             if message.file_name:
                 self.stt.from_file(message.file_name, message.sender)
         elif "language_" in cmd:

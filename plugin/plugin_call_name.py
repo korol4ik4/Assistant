@@ -9,7 +9,12 @@ import datetime
 
 class NamePlugin(Plugin):
     name = "NAME"  # необходимо переопределить в каждом плагине
-    default_options = {"name": "ирин*|*hallo*"}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
+    name_ru = "ирин*"
+    name_de = "*hallo*"
+    name_en = "*hello*"
+    _or = '|'
+    all_name = name_en + _or + name_de + _or + name_ru
+    default_options = {"name": all_name}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
 
     def __init__(self):
         super(NamePlugin, self).__init__()
@@ -21,7 +26,7 @@ class NamePlugin(Plugin):
             self.logger.info("don't find name for Assistent, name = 'ассистент'")
             name = "ассистент"
         self.listen_from('STT', text = name)
-        self.talk_to('TTS')  # text='*'
+        # text='*'
         # self.listen_from(self, from_name, keyword="*")  # подписаться на события от plugin from_name
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию

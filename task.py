@@ -31,7 +31,8 @@ class Task:
                 for keyword in value:  #
                     if keyword in keyword_dict:  # ключ вложенного словаря нового задания есть в основном словаре
                         val = self._all_task[key].pop(keyword)  # достаём ключ: значение
-                        if value[keyword] not in val:  # если добавляемого значения нет в основном словаре
+                        #print(value, keyword, val)
+                        if value[keyword] != val:  # если добавляемого значения нет в основном словаре
                             val += ("," + value[keyword])  # добавляем
                             self._all_task[key].update({keyword: val})  # обратно в основной словарь
 
@@ -86,7 +87,7 @@ class Task:
             else:
                 return -2
         if state == 4:
-            if keyword not in event_tasks:
+            if keyword != event_tasks:
                 return -2
             value = event_tasks[keyword]
             new_value = extractor(acceptor, value)

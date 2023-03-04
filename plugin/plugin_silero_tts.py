@@ -15,8 +15,9 @@ class TextToSpeechPlugin(Plugin):
         self.speaker = 'random'
         self.language = 'ru'
         self.set_lang(lang=self.language)
+        self.listen_from('NAME')
         self.listen_from('STT',info = 'mic*')  # _ -когда есть info,
-        self.talk_to('STT', command = 'mute*') # посылать команды вкл./откл. микрофон
+        self.talk_to('STT', command = 'o??_mute') # посылать команды вкл./откл. микрофон
         self.txt_to_speech=""
 
     def set_lang(self,lang):
@@ -26,6 +27,8 @@ class TextToSpeechPlugin(Plugin):
             self.speaker = "xenia"
         elif lang == 'de':
             self.speaker = "eva_k"
+        elif lang == 'en':
+            self.speaker = "en_85"
 
     def exe_command(self, message):
         #self.logger.debug(message.text)
@@ -39,11 +42,11 @@ class TextToSpeechPlugin(Plugin):
                         self.language = message.lang
                     except:
                         self.set_lang(self.language)
-                self.post_message(command="mute_on")
+                self.post_message(command="on_mute")
         if "info" in message() and message.info == "mic_off":
             if self.txt_to_speech:
                 self.logger.debug(self.txt_to_speech)
                 #kseniya, aidar, baya, xenia, eugene, random
                 self.tts.tell(self.txt_to_speech, speaker = self.speaker)
-                self.post_message(command="mute_off")
+                self.post_message(command="off_mute")
                 self.txt_to_speech =""
