@@ -10,9 +10,9 @@ import datetime
 class ChangeLanguagePlugin(Plugin):
     name = "LANGUAGE"  # необходимо переопределить в каждом плагине
       # можно переопределить для сохранения/ручного редактирования и загрузки настроек
-    ling_lang = {'ru' : {'немец':'de','англи' : 'en'},
-                 'de' : {'russ':'ru', 'engl' : 'en'},
-                 'en' : {'russ':'ru', 'german' : 'de'}
+    ling_lang = {'ru' : {'немец':'de','англи' : 'en', 'русс':'ru',},
+                 'de' : {'russ':'ru', 'engl' : 'en','deut':'de',},
+                 'en' : {'russ':'ru', 'german' : 'de', 'engl' : 'en', },
                  }
     question = {'en' : 'what language to choose?',
                 'ru' : 'какой язык выбрать?',
@@ -31,7 +31,7 @@ class ChangeLanguagePlugin(Plugin):
         self.talk_to('STT', command='language_*')
         self.talk_to('TTS',text='*')
         self.talk_to('CONTEXT', command='on_context')
-        self.listen_from('CONTEXT', context='*')
+
 
         self.on_context = False
 
@@ -63,13 +63,17 @@ class ChangeLanguagePlugin(Plugin):
 
             new_lang = self.find_lang(txt, message.lang)
             if new_lang:
+                if new_lang == message.lang:
+                    return
                 self.post_message(command='language_' + new_lang)
                 self.on_context = False
                 self.post_message(text=self.hello[new_lang],lang=new_lang)
+                self.not_listen_from('CONTEXT', 'context')
                 return
             else:
                 #self.not_listen_from('CONTEXT')
 
                 self.on_context = True
+                self.listen_from('CONTEXT', context='*')
                 self.post_message(command='on_context')
                 self.post_message(text=self.question[message.lang])

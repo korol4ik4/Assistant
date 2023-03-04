@@ -57,5 +57,6 @@ class Task:
                 self.delete(event_creator)
             return
         for feld in args:
+            #print(self._all_task,event_creator,acceptor,feld)
             if feld in self._all_task[event_creator][acceptor]:
                     self._all_task[event_creator][acceptor].pop(feld)

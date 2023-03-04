@@ -39,8 +39,11 @@ class Plugin(object):
         }}
         self.task.update(task)
 
-    def not_listen_from(self, sender, **kwargs):
-        self.task.delete(sender,self.name, kwargs)
+    def not_listen_from(self, sender, *felds):
+        self.task.delete(sender,self.name, felds)
+
+    def not_talk_to(self, acceptor, *felds):
+        self.task.delete(self.name,acceptor, felds)
 
     # Если plugin подписан на события, то при его возникновении Ассистент запускает эту функцию
     def exe_command(self, message):
