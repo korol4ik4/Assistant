@@ -17,12 +17,28 @@ class Assistant(object):
         logger_name = "Assistant"
         log_level = logging.DEBUG
         self.logger = get_base_logger(log_file_name, logger_name, log_level)
+        #self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        self.started = False
+
+    def loop_stop(self):
+        self.started = False
+
+    def loop_start(self):
+        if self.started:
+            return
+        if len(self.all_plugins):
+            for name, plug in self.all_plugins.items():
+                plug.close()
+        self.all_plugins = {}
         self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        self.loop()
+
 
     def loop(self):
         self.logger.info("Дерево команд %s", Plugin.task())
+        self.started = True
         try:
-            while True:
+            while self.started:
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
                 new_event = Plugin.event.get()
                 if new_event:
@@ -56,7 +72,7 @@ class Assistant(object):
             plugin_name = os.path.splitext(s)[0]
             if s.startswith("plugin") and s.endswith(".py"):
                 self.logger.info('Найден Плагин %s', s)
-                # print('Found plugin', s)
+                print('Found plugin', plugin_name)
                 __import__(plugin_name, None, None, [''])  # Импортируем исходник плагина
         # так как Plugin произведен от object, мы используем __subclasses__,
         # чтобы найти все плагины, произведенные от этого класса

@@ -1,4 +1,4 @@
 from assistent import Assistant
 
 my_assistent = Assistant()
-my_assistent.loop()
+my_assistent.loop_start()
