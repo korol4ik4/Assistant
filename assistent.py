@@ -33,6 +33,11 @@ class Assistant(object):
         self.load_plugins(path="plugin")  # имя директории с файлами плагинов
         self.loop()
 
+    def on_event(self, new_event):
+        pass
+
+    def on_task(self,plugin_name,msg):
+        pass
 
     def loop(self):
         self.logger.info("Дерево команд %s", Plugin.task())
@@ -42,6 +47,7 @@ class Assistant(object):
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
                 new_event = Plugin.event.get()
                 if new_event:
+                    self.on_event(new_event)
                     self.logger.debug(" : Новое событие %s",  new_event())
                     # print('##event## ', new_event)
                     # print('%%TasksBaum%% ', Plugin.task())
@@ -55,14 +61,16 @@ class Assistant(object):
                     if class_name in self.all_plugins:
                         exe_func = self.all_plugins[class_name].exe_command
                         message(search=keywords)
+                        self.on_task(self.all_plugins[class_name].name, message)
                         exe_func(message)
                     else:
                         continue
-        except KeyboardInterrupt:
+        except:  # KeyboardInterrupt:
             # выгрузить plugins (например завершить thread vosk  )
             self.logger.info("ВЫХОД")
             for name, plug in self.all_plugins.items():
                 plug.close()
+
 
     def load_plugins(self, path):
         files_in_dir = os.listdir(path)  # Получаем список файлов в dir
