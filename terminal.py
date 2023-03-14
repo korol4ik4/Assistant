@@ -20,17 +20,28 @@ class TerminalAssistant(Assistant):
         self._task_actor = []
         self.thr_loop = None
 
+    def loop_stop(self):
+        self.started = False
+        self.paused = False
+        self.thr_loop.join()
+        self.thr_loop = None
     def loop_start(self):
         self.paused = False
+        print('loop started ', self.started)
         if self.started:
             return
+
         if len(self.all_plugins):
             for name, plug in self.all_plugins.items():
                 plug.close()
         self.all_plugins = {}
         self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        print(self.thr_loop)
         if not self.thr_loop:  # защита от двоиного запуска
             self.thr_loop = Thread(target=self.loop, name="AssistentMainLoop")
+            self.thr_loop.start()
+        else:
+
             self.thr_loop.start()
 
 
@@ -100,7 +111,7 @@ class TerminalAssistant(Assistant):
                     key, value = itm.split(':')
                     out_dict.update({key.strip(): value.strip()})
             except:
-                raise ValueError("can't " + dstr + ' to dict')
+                print("can't " + dstr + ' to dict')
             return out_dict
 
         def token(tinput: str):

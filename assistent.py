@@ -72,11 +72,11 @@ class Assistant(object):
                     else:
                         continue
         except BaseException() as e:  # KeyboardInterrupt:
-            # выгрузить plugins (например завершить thread vosk  )
-            self.logger.info("ВЫХОД!")
             print(self.started, e)
-            for name, plug in self.all_plugins.items():
-                plug.close()
+        # выгрузить plugins (например завершить thread vosk  )
+        self.logger.info("ВЫХОД!")
+        for name, plug in self.all_plugins.items():
+            plug.close()
 
 
     def load_plugins(self, path):
