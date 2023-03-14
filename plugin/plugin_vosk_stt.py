@@ -14,7 +14,6 @@ class SpeechToTextPlugin(Plugin):
         self.language = 'ru'
         self.logger = logging.getLogger("Assistant.Plugin.VoskSTTInput")
         self.stt = None
-        self.listen_from('NAME')
         self.set_lang(lang=self.language)#lang
 
 
@@ -35,6 +34,8 @@ class SpeechToTextPlugin(Plugin):
         cmd = ""
         if "command" in message():
             cmd = message.command
+        else:
+            return
         # отключить / включить распознавание, начать / остановить запись с микрофона (пока RAW данные)
         if cmd == "on_mute":
 

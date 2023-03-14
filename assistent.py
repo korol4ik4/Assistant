@@ -15,17 +15,21 @@ class Assistant(object):
         self.all_plugins = {}  # словарь {str - имя плагина: object - инициализированный плагин}
         log_file_name = "assistant.log"
         logger_name = "Assistant"
-        log_level = logging.DEBUG
+        log_level = logging.INFO  # DEBUG
         self.logger = get_base_logger(log_file_name, logger_name, log_level)
         #self.load_plugins(path="plugin")  # имя директории с файлами плагинов
         self.started = False
+        self.paused = False
 
     def loop_stop(self):
         self.started = False
+        self.paused = False
 
     def loop_start(self):
         if self.started:
-            return
+            if self.paused:
+                self.paused = False
+            return  # снимаем с паузы
         if len(self.all_plugins):
             for name, plug in self.all_plugins.items():
                 plug.close()
@@ -45,6 +49,8 @@ class Assistant(object):
         try:
             while self.started:
                 # Plugin.event = Событие - переменная класса, общая для всех потомков (плагинов)
+                while self.paused:
+                    pass
                 new_event = Plugin.event.get()
                 if new_event:
                     self.on_event(new_event)
@@ -65,9 +71,10 @@ class Assistant(object):
                         exe_func(message)
                     else:
                         continue
-        except:  # KeyboardInterrupt:
+        except BaseException() as e:  # KeyboardInterrupt:
             # выгрузить plugins (например завершить thread vosk  )
-            self.logger.info("ВЫХОД")
+            self.logger.info("ВЫХОД!")
+            print(self.started, e)
             for name, plug in self.all_plugins.items():
                 plug.close()
 

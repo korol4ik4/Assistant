@@ -39,11 +39,15 @@ class TTSTacotron:
         put_accent = True
         put_yo = True
         print(text)
-        audio = self.model.apply_tts(text=text,
+        try:
+            audio = self.model.apply_tts(text=text,
                                 speaker=speaker,
                                 sample_rate=sample_rate,
                                 put_accent=put_accent,
                                 put_yo=put_yo)
+        except:
+            print('tts_silero error chars ', text)
+            return
         if pre_wav:
             data, fs = sf.read(pre_wav, dtype='float32')
             sd.play(data, fs)

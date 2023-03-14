@@ -51,12 +51,15 @@ class Task:
         if not acceptor:
             self._all_task.pop(event_creator)
             return
-        if not args:
+        if acceptor not in self._all_task[event_creator]:
+            return
+        if not all(args):
             self._all_task[event_creator].pop(acceptor)
             if not self._all_task[event_creator]:
                 self.delete(event_creator)
             return
         for feld in args:
-            #print(self._all_task,event_creator,acceptor,feld)
+            if acceptor not in self._all_task[event_creator]:
+                return
             if feld in self._all_task[event_creator][acceptor]:
                     self._all_task[event_creator][acceptor].pop(feld)

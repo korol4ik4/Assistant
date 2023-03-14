@@ -47,6 +47,6 @@ class TextToSpeechPlugin(Plugin):
             if self.txt_to_speech:
                 self.logger.debug(self.txt_to_speech)
                 #kseniya, aidar, baya, xenia, eugene, random
-                self.tts.tell(self.txt_to_speech, speaker = self.speaker)
+                self.tts.tell(self.txt_to_speech.lower(), speaker = self.speaker)
                 self.post_message(command="off_mute")
                 self.txt_to_speech =""

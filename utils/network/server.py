@@ -4,7 +4,7 @@ from threading import Thread
 from time import sleep
 import rsa
 import rsa.randnum
-import aes
+import utils.network.aes as aes
 
 
 class Server:
