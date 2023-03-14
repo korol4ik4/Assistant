@@ -86,7 +86,7 @@ class Assistant(object):
         for s in files_in_dir:
             plugin_name = os.path.splitext(s)[0]
             if s.startswith("plugin") and s.endswith(".py"):
-                self.logger.info('Найден Плагин %s', s)
+                self.logger.info('Найден Плагин %s ', plugin_name)
                 print('Found plugin', plugin_name)
                 __import__(plugin_name, None, None, [''])  # Импортируем исходник плагина
         # так как Plugin произведен от object, мы используем __subclasses__,

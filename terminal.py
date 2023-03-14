@@ -162,7 +162,7 @@ class TerminalAssistant(Assistant):
         # plugin list loaded/imported/all
         # [4,1,('loaded/imported/all'){}]
 
-        # plugin import path/withoutspace
+        # plugin import modul path.withouts.pace
         # [4,2, (path){}]
 
         # plugin load NAME SST
@@ -278,6 +278,24 @@ class TerminalAssistant(Assistant):
                 self.loop_stop()
             elif opt == 3:  # pause
                 self.paused = True
+        elif cmd == 4:  # plugin
+            if opt == 1:  #list
+                if len(args) == 0:  # default all
+                    print('imported Plugins ', Plugin.__subclasses__())
+                    print('loaded Plugins ', self.all_plugins)
+                if len(args) == 1:
+                    if args[0] == 'all':  # all
+                        print('imported Plugins ', Plugin.__subclasses__())
+                        print('loaded Plugins ', self.all_plugins)
+                    elif args[0] == 'loaded':
+                        print('loaded Plugins ', self.all_plugins)
+                    elif args[0] == 'imported':
+                        print('imported Plugins ', Plugin.__subclasses__())
+            elif opt == 2:  # import
+                if not args:
+                    return
+                else:
+                    pass
         return
 
 
