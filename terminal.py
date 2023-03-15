@@ -35,7 +35,7 @@ class TerminalAssistant(Assistant):
             for name, plug in self.all_plugins.items():
                 plug.close()
         self.all_plugins = {}
-        self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         print(self.thr_loop)
         if not self.thr_loop:  # защита от двоиного запуска
             self.thr_loop = Thread(target=self.loop, name="AssistentMainLoop")
@@ -162,7 +162,7 @@ class TerminalAssistant(Assistant):
         # plugin list loaded/imported/all
         # [4,1,('loaded/imported/all'){}]
 
-        # plugin import modul path.withouts.pace
+        # plugin import path # all plug_*.py files from order
         # [4,2, (path){}]
 
         # plugin load NAME SST
@@ -278,24 +278,39 @@ class TerminalAssistant(Assistant):
                 self.loop_stop()
             elif opt == 3:  # pause
                 self.paused = True
+
         elif cmd == 4:  # plugin
             if opt == 1:  #list
                 if len(args) == 0:  # default all
-                    print('imported Plugins ', Plugin.__subclasses__())
-                    print('loaded Plugins ', self.all_plugins)
+                    print('imported Plugins : ', [pl.name for pl in Plugin.__subclasses__()])
+                    print('loaded Plugins : ', list(self.all_plugins.keys()))
                 if len(args) == 1:
                     if args[0] == 'all':  # all
-                        print('imported Plugins ', Plugin.__subclasses__())
-                        print('loaded Plugins ', self.all_plugins)
+                        print('imported Plugins : ', [pl.name for pl in Plugin.__subclasses__()])
+                        print('loaded Plugins : ', list(self.all_plugins.keys()))
                     elif args[0] == 'loaded':
-                        print('loaded Plugins ', self.all_plugins)
+                        print('loaded Plugins : ', list(self.all_plugins.keys()))
                     elif args[0] == 'imported':
-                        print('imported Plugins ', Plugin.__subclasses__())
+                        print('imported Plugins: ', [pl.name for pl in Plugin.__subclasses__()])
+
             elif opt == 2:  # import
-                if not args:
+                if not args:  # нет пути(папки) для импорта
                     return
                 else:
-                    pass
+                    self.import_plugins_from_path(args[0])
+            elif opt == 3:  #load
+                if not args:  # нет имени плагина ( или all)
+                    return
+                self.load_plugins(*args)
+            elif opt == 4:  # close
+                if args and args[0] == 'all':
+                    for plug in self.all_plugins.values():
+                        plug.close()
+                    self.all_plugins = {}
+
+                self.close_plugin(*args)
+
+
         return
 
 

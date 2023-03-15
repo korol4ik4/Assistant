@@ -17,7 +17,7 @@ class Assistant(object):
         logger_name = "Assistant"
         log_level = logging.INFO  # DEBUG
         self.logger = get_base_logger(log_file_name, logger_name, log_level)
-        #self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        #self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         self.started = False
         self.paused = False
 
@@ -34,7 +34,7 @@ class Assistant(object):
             for name, plug in self.all_plugins.items():
                 plug.close()
         self.all_plugins = {}
-        self.load_plugins(path="plugin")  # имя директории с файлами плагинов
+        self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         self.loop()
 
     def on_event(self, new_event):
@@ -78,21 +78,43 @@ class Assistant(object):
         for name, plug in self.all_plugins.items():
             plug.close()
 
-
-    def load_plugins(self, path):
-        files_in_dir = os.listdir(path)  # Получаем список файлов в dir
-        sys.path.insert(0, path)  # Добавляем папку плагинов в $PATH, чтобы __import__ мог их загрузить
-
+    def import_plugins_from_path(self, path):
+        try:
+            files_in_dir = os.listdir(path)  # Получаем список файлов в dir
+        except:
+            print('ничего не найдено')
+            return
+        sys.path.insert(0, path)
+        imported_plugins = []
         for s in files_in_dir:
             plugin_name = os.path.splitext(s)[0]
             if s.startswith("plugin") and s.endswith(".py"):
                 self.logger.info('Найден Плагин %s ', plugin_name)
                 print('Found plugin', plugin_name)
+                imported_plugins.append(plugin_name)
                 __import__(plugin_name, None, None, [''])  # Импортируем исходник плагина
+        return imported_plugins
+
+    def close_plugin(self, *plugin_names):
+        for plugin_name in plugin_names:
+            #print(plugin_name, self.all_plugins.keys())
+            if plugin_name in self.all_plugins.keys():
+                self.all_plugins[plugin_name].close()
+                del self.all_plugins[plugin_name]
+
+    def init_plugins(self, path):
+        self.import_plugins_from_path(path)
+        self.load_plugins()
+
+    def load_plugins(self, *args):
+        all = True if not args else False  # нет аргументов - загрузить все доступные плагины
+
         # так как Plugin произведен от object, мы используем __subclasses__,
         # чтобы найти все плагины, произведенные от этого класса
         for plugin in Plugin.__subclasses__():
-            if plugin.name not in self.all_plugins:
+
+            loaded = plugin.name in self.all_plugins
+            if not loaded and (all or plugin.name in args):
                 p = plugin()  # Создаем экземпляр класса из plugin_*
                 self.all_plugins.update({p.name: p})  # имя плагина и он сам в словарь
                 self.logger.info('Загружен %s', p.__class__)
