@@ -63,8 +63,14 @@ class Plugin(object):
         if len(args):
             if isinstance(args[0], Message):  # Если есть аргумент и он является Message
                 message = args[0]
-                chain = message.chain
-                chain.append(self.name)
+                if 'chain' in message():
+                    chain = message.chain
+                else:
+                    chain = ['NOBODY',]
+                if isinstance(chain,list):
+                    chain.append(self.name)
+                else:
+                    chain = [chain,self.name]
                 message(sender=self.name, chain = chain)  # меняем имя отправителя и добавляем его в цепочке
         message(** kwargs)  # добавляем именованные аргументы в сообщение
         event = message
