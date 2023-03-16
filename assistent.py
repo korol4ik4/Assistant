@@ -82,7 +82,7 @@ class Assistant(object):
         try:
             files_in_dir = os.listdir(path)  # Получаем список файлов в dir
         except:
-            print('ничего не найдено')
+            #print('ничего не найдено')
             return
         sys.path.insert(0, path)
         imported_plugins = []
@@ -102,10 +102,6 @@ class Assistant(object):
                 self.all_plugins[plugin_name].close()
                 del self.all_plugins[plugin_name]
 
-    def init_plugins(self, path):
-        self.import_plugins_from_path(path)
-        self.load_plugins()
-
     def load_plugins(self, *args):
         all = True if not args else False  # нет аргументов - загрузить все доступные плагины
 
@@ -119,6 +115,10 @@ class Assistant(object):
                 self.all_plugins.update({p.name: p})  # имя плагина и он сам в словарь
                 self.logger.info('Загружен %s', p.__class__)
                 # print("Loaded ", p.__class__)
+
+    def init_plugins(self, path='plugin'):
+        self.import_plugins_from_path(path)
+        self.load_plugins()
 
     @staticmethod
     def event_analyse(message_event):

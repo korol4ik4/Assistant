@@ -31,12 +31,13 @@ class TerminalAssistant(Assistant):
         if self.started:
             return
 
+        '''
         if len(self.all_plugins):
             for name, plug in self.all_plugins.items():
                 plug.close()
         self.all_plugins = {}
         self.init_plugins(path="plugin")  # имя директории с файлами плагинов
-        print(self.thr_loop)
+        '''
         if not self.thr_loop:  # защита от двоиного запуска
             self.thr_loop = Thread(target=self.loop, name="AssistentMainLoop")
             self.thr_loop.start()
@@ -307,10 +308,8 @@ class TerminalAssistant(Assistant):
                     for plug in self.all_plugins.values():
                         plug.close()
                     self.all_plugins = {}
-
-                self.close_plugin(*args)
-
-
+                else:
+                    self.close_plugin(*args)
         return
 
 
