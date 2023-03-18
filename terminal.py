@@ -1,8 +1,8 @@
-from threading import Thread
+
 
 from assistent import Assistant
 from plugin import Plugin
-from message import Message
+
 from utils.network.server import Server
 
 class TerminalServer(Server):
@@ -14,64 +14,9 @@ class TerminalAssistant(Assistant):
 
     def __init__(self):
         super(TerminalAssistant,self).__init__()
-        self._list_event = False
-        self._event_sender = []
-        self._list_task = False
-        self._task_actor = []
-        self.thr_loop = None
-
-    def loop_stop(self):
-        self.started = False
-        self.paused = False
-        self.thr_loop.join()
-        self.thr_loop = None
-    def loop_start(self):
-        self.paused = False
-        print('loop started ', self.started)
-        if self.started:
-            return
-
-        '''
-        if len(self.all_plugins):
-            for name, plug in self.all_plugins.items():
-                plug.close()
-        self.all_plugins = {}
-        self.init_plugins(path="plugin")  # имя директории с файлами плагинов
-        '''
-        if not self.thr_loop:  # защита от двоиного запуска
-            self.thr_loop = Thread(target=self.loop, name="AssistentMainLoop")
-            self.thr_loop.start()
-        else:
-
-            self.thr_loop.start()
-
-
-    def task_add(self, sender, acceptor, **kwargs):
-        print(sender, acceptor, kwargs)
-        if not kwargs:
-            kwargs = {'text':'*'}
-        new_task = {sender:{acceptor: kwargs} }
-        Plugin.task.update(new_task)
-
-    def task_list(self):
-        return Plugin.task()
-
-    def task_del(self,evn_creator, acceptor = None, *args):
-        Plugin.task.delete(evn_creator, acceptor, *args)
-
-    def event_add(self,message:dict):
-        msg = Message(**message)
-        Plugin.event.add(msg)
-
-    '''    
-    def task_list_all(self, _list=True):
-        self._list_task = _list
-    def event_list(self, _list=True):
-        self._list_event = _list
-    '''
 
     #virtual func from Assistant
-    def on_event(self, new_event:Message):
+    def on_event(self, new_event):
         if self._list_event:
             if not self._event_sender:
                 print('Terminal new event ', new_event())
@@ -80,7 +25,7 @@ class TerminalAssistant(Assistant):
                     if new_event.sender in self._event_sender:
                         print('Termina new event ', new_event())
     # virtual func from Assistant
-    def on_task(self, plugin_name, msg:Message):
+    def on_task(self, plugin_name, msg):
         if self._list_task:
             if not self._task_actor:
                 print('Termina new task for {0} msg {1}'.format(plugin_name,msg()))
@@ -207,7 +152,7 @@ class TerminalAssistant(Assistant):
     def terminal_executer(self,terminal_input:str):
         # [num_of_command, num_of_option, *args,**kwargs]
         param = self.terminal_parser(terminal_input)
-        print(param)
+         #print(param)
         cmd, opt, args, kwargs = param
 
         if not (cmd and opt):  # else: cmd and opt > 0

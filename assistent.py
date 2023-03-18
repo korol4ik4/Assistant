@@ -1,11 +1,13 @@
 #
 # Assistant class
-
+from threading import Thread
 from base_logger import get_base_logger
 import logging
 import sys
 import os
 from plugin import Plugin
+from message import Message
+
 from utils.parser import keyword_search
 
 
@@ -20,22 +22,56 @@ class Assistant(object):
         #self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         self.started = False
         self.paused = False
+        self._list_event = False
+        self._event_sender = []
+        self._list_task = False
+        self._task_actor = []
+        self.thr_loop = None
 
     def loop_stop(self):
         self.started = False
         self.paused = False
+        self.thr_loop.join()
+        self.thr_loop = None
 
     def loop_start(self):
+        self.paused = False
+        print('loop started ', self.started)
         if self.started:
-            if self.paused:
-                self.paused = False
-            return  # снимаем с паузы
+            return
+
+        '''
         if len(self.all_plugins):
             for name, plug in self.all_plugins.items():
                 plug.close()
         self.all_plugins = {}
         self.init_plugins(path="plugin")  # имя директории с файлами плагинов
-        self.loop()
+        '''
+        if not self.thr_loop:  # защита от двоиного запуска
+            self.thr_loop = Thread(target=self.loop, name="AssistentMainLoop")
+            self.thr_loop.start()
+        else:
+
+            self.thr_loop.start()
+
+    def task_add(self, sender, acceptor, **kwargs):
+        print(sender, acceptor, kwargs)
+        if not kwargs:
+            kwargs = {'text': '*'}
+        new_task = {sender: {acceptor: kwargs}}
+        Plugin.task.update(new_task)
+
+    def task_list(self):
+        return Plugin.task()
+
+    def task_del(self, evn_creator, acceptor=None, *args):
+        Plugin.task.delete(evn_creator, acceptor, *args)
+
+    def event_add(self, message: dict):
+        msg = Message(**message)
+        Plugin.event.add(msg)
+
+    # --------------------------------------------
 
     def on_event(self, new_event):
         pass
