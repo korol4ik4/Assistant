@@ -9,9 +9,9 @@ import datetime
 
 class NamePlugin(Plugin):
     name = "NAME"  # необходимо переопределить в каждом плагине
-    name_ru = "ирин*"
-    name_de = "*hallo*"
-    name_en = "*hello*"
+    name_ru = "ассистент"
+    name_de = "assistent"
+    name_en = "assistant"
     _or = '|'
     all_name = name_en + _or + name_de + _or + name_ru
     default_options = {"name": all_name}  # можно переопределить для сохранения/ручного редактирования и загрузки настроек
