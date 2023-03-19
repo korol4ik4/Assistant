@@ -25,8 +25,11 @@ class Task:
     # так же для вложенного списка,
     # добавляет значение в существующий через запятую или добавляет новый {ключ: значения}
     def update(self, task):
-
+        if not isinstance(task,dict):
+            return f"Тhe task must be a dictionary: {task}"
         for eventor, value in task.items():
+            if not isinstance(value,dict):
+                return f"wrong structure \nValue of eventor must be a dictionary: \n{eventor} : {value}"
             if eventor not in self._all_task:
                 self._all_task.update({eventor:value})
                 continue
@@ -36,7 +39,7 @@ class Task:
                     continue
                 else:
                     self._all_task[eventor][acceptor].update(value[acceptor])
-
+        return f"task {task} successfully added"
 
     def __call__(self, *task):  # set/get через вызов объекта как функции
         if task:
@@ -46,20 +49,24 @@ class Task:
 
     # Функции удаления из словаря
     def delete(self, event_creator:str, acceptor:str=None, *args):
+        #print(event_creator, acceptor, args)
         if event_creator not in self._all_task:
-            return
+            return False
         if not acceptor:
             self._all_task.pop(event_creator)
-            return
+            return True
         if acceptor not in self._all_task[event_creator]:
-            return
-        if not all(args):
+            return False
+        if not args or not args[0]:
             self._all_task[event_creator].pop(acceptor)
             if not self._all_task[event_creator]:
                 self.delete(event_creator)
-            return
-        for feld in args:
-            if acceptor not in self._all_task[event_creator]:
-                return
-            if feld in self._all_task[event_creator][acceptor]:
-                    self._all_task[event_creator][acceptor].pop(feld)
+            return True
+        ret = False
+        for field in args:
+            if field in self._all_task[event_creator][acceptor]:
+                self._all_task[event_creator][acceptor].pop(field)
+                ret = True
+            if not self._all_task[event_creator][acceptor]:
+                return self.delete(event_creator,acceptor)
+        return ret
