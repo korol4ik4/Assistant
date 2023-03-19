@@ -8,9 +8,8 @@ class Event:
 
     def add(self, event):  # Добавить в список
         if isinstance(event, Message):
-            if 'sender' in event():
-                self.event_list.append(event)
-                return True
+            self.event_list.append(event)
+            return True
         return False
 
     def get(self):  # Получить и удалить
