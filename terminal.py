@@ -68,17 +68,17 @@ class TerminalAssistant(Assistant):
 
         # positive test parser
         '''------------------'''
-        # event add {sender: SST, text: Hello world, lang : ru}
+        # event add {sender: STT, text: Hello world, lang : en}
         # [1,1,(),{kw}]
 
         # event list all/nix
         # [1,2,('all',),]
 
-        # event list SST
+        # event list STT
         # [1,2,('SST',),{}]
 
-        # event list SST TERMINAL TTS
-        # [1,2,('SST','TERMINAL','TTS'),{}]
+        # event list STT TERMINAL TTS
+        # [1,2,('STT','TERMINAL','TTS'),{}]
         '''------------------'''
         # task add SENDER ACCEPTOR {text: * }
         # [2,1,('SENDER','ACCEPTOR',), {text:'*'}]
@@ -89,21 +89,24 @@ class TerminalAssistant(Assistant):
         # task list all/nix
         # [2,2,('all',){}]
 
-        # task list SST
+        # task list STT
         # [2,2,('SST',){}]
 
-        # task list SST TERMINAL TTS
+        # task list STT TERMINAL TTS
         # [2,2,('SST','TERMINAL','TTS'){}]
 
         # task delete SENDER TERMINAL (text,lang,)
         # [2,3,('SENDER','TERMINAL', field,key,list)]
+        # task delete all
         '''------------------'''
         # loop start
-        # [3,1,(){}]
+        # [3,1,(),{}]
         # loop stop
-        # [3,2,(){}]
+        # [3,2,(),{}]
         # loop pause
-        # [3,3,(){}]
+        # [3,3,(),{}]
+        # loop status
+        # [3,4,(),{})
         '''------------------'''
         # plugin list loaded/imported/all
         # [4,1,('loaded/imported/all'){}]
@@ -123,7 +126,7 @@ class TerminalAssistant(Assistant):
             command_num = 0
             option_num = 0
             args = ()
-            commands = ("event", "task", "loop", "plugin")
+            commands = ("event", "task", "loop", "plugin", "help")
             if not cmd or not all(cmd) or cmd[0] not in commands:
                 return [command_num, option_num, args, kwargs] # нет комманды
 
@@ -131,11 +134,17 @@ class TerminalAssistant(Assistant):
             # options[command_num] = (options of command)
             options = (("add", "list"),  # event
                        ("add", "list", "delete"),  # task
-                       ("start", "stop","pause"),  # loop
-                       ("list", "import", "load", "close"))  # plugin
+                       ("start", "stop","pause", "status"),  # loop
+                       ("list", "import", "load", "close"), # plugin
+                       ("","event", "task", "loop", "plugin"),)  # help
 
-            if len(cmd) < 2 or not (cmd[1] in options[command_num-1]):
-                print("# нет опции / неизвестная опция")
+            if len(cmd) < 2:
+                # пустая опция - тоже опция, например help
+                if "" in options[command_num-1]:
+                    option_num = options[command_num-1].index("")+1
+                return [command_num, option_num, args, kwargs]
+            elif cmd[1] not in options[command_num-1]:
+                #print("# нет опции / неизвестная опция")
                 return [command_num, option_num, args, kwargs] # нет опции / неизвестная опция
             #print("options[command_num-1], options[command_num-1].index(cmd[1]) +1 ", options[command_num-1], options[command_num-1].index(cmd[1]) +1, cmd[1])
             option_num = options[command_num-1].index(cmd[1])+1
@@ -152,12 +161,12 @@ class TerminalAssistant(Assistant):
     def terminal_executer(self,terminal_input:str):
         # [num_of_command, num_of_option, *args,**kwargs]
         param = self.terminal_parser(terminal_input)
-         #print(param)
+        #print(param)
         cmd, opt, args, kwargs = param
 
         if not (cmd and opt):  # else: cmd and opt > 0
-            self.terminal_error(param)
-            return
+            #self.terminal_error(param)
+            return f"don't parse {param}"
         #[1,2] ("add", "list"),  # event
         #[2,3] ("add", "list", "delete"),  # task
         #[3,2] ("start", "stop"),  # loop
@@ -165,97 +174,55 @@ class TerminalAssistant(Assistant):
         if cmd == 1:  # event
             if opt == 1:  # add
                 if kwargs: # kwargs
-                    self.event_add(kwargs)  #add new event
-            elif opt ==2:  # list
-                self._event_sender = []
-                if args:
-                    if args[0] == 'all':
-                        self._list_event = True
-                    elif args[0] == 'nix':
-                        self._list_event = False
-                    else:  # names of Plugin
-                        # test: Plugin with name is loaded
-                        self._event_sender = [name for name in args if name in self.all_plugins.keys()]
-                        if self._event_sender:
-                            self._list_event = True
-                        #self.event_list(names_to_list)
+                    return self.event_add(kwargs)  #add new event
                 else:
-                    self._list_event = True  # default 'all'
+                    return f"nothing to add, kwargs = {kwargs}"
+
+            elif opt ==2:  # list
+                return self.event_list(*args)
 
         elif cmd == 2:  # task
             if opt == 1:  # add
                 if len(args) == 2:
                     sender, acceptor = args
-                    print(sender, acceptor, kwargs)
-                    self.task_add(sender, acceptor,**kwargs)
+                    return self.task_add(sender, acceptor, **kwargs)
                 else:
-                    self.terminal_error(param)  # неподходящие кол-во аргументов
+                    return "invalid number of arguments\n use '>help task add"  # неподходящие кол-во аргументов
             elif opt == 2:  # list
-                if len(args) == 0:
-                    print(self.task_list())
-                elif len(args) == 1:
-                    if args[0] == 'all':
-                        self._list_task = True
-                    elif args[0] == 'nix':
-                        self._list_task = False
-                    elif args[0] in self.all_plugins.keys():
-                        self._task_actor.append(args[0])
-                else:
-                    self._task_actor = [name for name in args if name in self.all_plugins.keys()]
-                    if self._task_actor:
-                        self._list_task = True
+                return self.task_list(*args)
+
             elif opt == 3:  # delete
                 if not args:
-                    self.terminal_error(param)  # нечего удалять
-                    return
-                sender = None
-                acceptor = None
-                field_name = []
-                if len(args) == 1:
-                    sender = args[0]
-                elif len(args) > 1:
-                    sender, acceptor, *field_name = args
-                    field_name = [] if not field_name else field_name[0]
-                self.task_del(sender,acceptor,field_name)
+                    return "nothing to delete"  # нечего удалять
+                return  self.task_del(*args)
+
         elif cmd == 3:  # loop
             if opt == 1:  # start
-                self.loop_start()
+                return self.loop_start()
             elif opt == 2:  #stop
-                self.loop_stop()
+                return self.loop_stop()
             elif opt == 3:  # pause
-                self.paused = True
+                return self.loop_pause()
+            elif opt == 4:  # status
+                return self.loop_stat()
+
 
         elif cmd == 4:  # plugin
             if opt == 1:  #list
-                if len(args) == 0:  # default all
-                    print('imported Plugins : ', [pl.name for pl in Plugin.__subclasses__()])
-                    print('loaded Plugins : ', list(self.all_plugins.keys()))
-                if len(args) == 1:
-                    if args[0] == 'all':  # all
-                        print('imported Plugins : ', [pl.name for pl in Plugin.__subclasses__()])
-                        print('loaded Plugins : ', list(self.all_plugins.keys()))
-                    elif args[0] == 'loaded':
-                        print('loaded Plugins : ', list(self.all_plugins.keys()))
-                    elif args[0] == 'imported':
-                        print('imported Plugins: ', [pl.name for pl in Plugin.__subclasses__()])
-
+                return self.plugin_list(*args)
             elif opt == 2:  # import
                 if not args:  # нет пути(папки) для импорта
-                    return
+                    return "Don't find path"
                 else:
-                    self.import_plugins_from_path(args[0])
+                    return self.import_plugins_from_path(args[0])
             elif opt == 3:  #load
                 if not args:  # нет имени плагина ( или all)
-                    return
-                self.load_plugins(*args)
+                    return "no plugin name or all"
+                return self.load_plugins(*args)
+
             elif opt == 4:  # close
-                if args and args[0] == 'all':
-                    for plug in self.all_plugins.values():
-                        plug.close()
-                    self.all_plugins = {}
-                else:
-                    self.close_plugin(*args)
-        return
+                return self.close_plugin(*args)
+        return param
 
 
     def terminal_error(self, param):
@@ -266,10 +233,11 @@ class TerminalAssistant(Assistant):
     def loop_input(self):
         text =''
         while text != 'exit':
-            text=input('input text')
+            text=input('>')
             #msg = Message(sender='TERMINAL',text=text,lang='en')
             #Plugin.event.add(msg)
-            self.terminal_executer(text)
+            print(self.terminal_executer(text))
+        self.loop_stop()
 
 
 
