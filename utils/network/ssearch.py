@@ -3,28 +3,8 @@ from client import Client
 from time import sleep
 
 
-port = 5555
-serv_ip =search_server(port,1)
-clients = []
-print(serv_ip)
+def find_server(port,self_interfaces=False,localhost = False, waittime=2):
 
-for ip in serv_ip:
-    cl = Client(ip, port)
-    cl.ping()
-    cl.send_message('ok')
-    clients.append(cl)
-
-print(clients)
-#закрыть клиентов
-for cl in clients:
-    cl.isconnected=False  #  Для выхода из цикла чтения
-    cl.send_message('exit')  # Посылаем серверу, он должен ответить, что снимет блокировку sock.recv
-    cl.sock.close()
-
-print('close')
-
-class ClientManager:
-    @staticmethod
     def test_network(loc=False) -> list:
         addresses = []
         for iname in interfaces():
@@ -37,13 +17,14 @@ class ClientManager:
                         addresses.append(addr)
         return addresses
 
-    @staticmethod
     def ip_to_search(ip: str) -> list[str]:
         # validate
         if ip and isinstance(ip, str):
             ip_bytes = ip.split('.')
             if len(ip_bytes) == 4 and all((i.isnumeric() for i in ip_bytes)):
                 # ip/24
+                if ip == "127.0.0.1":
+                    return [ip,]
                 last_byte = int(ip_bytes[-1])
                 if not last_byte:  # == 0 or None or ...False?)
                     return
@@ -51,7 +32,7 @@ class ClientManager:
                 ip_to_test = [ip_begin + str(i) for i in range(1, 256) if i != last_byte]
                 return ip_to_test
 
-    @staticmethod
+
     def search_server(port, ip_list=[], waittime=2):
         # test of connect, create one Client for every ip
         print('start connect..')
@@ -62,11 +43,27 @@ class ClientManager:
             clients.append(cl)
             # wait
         print('wait', waittime, ' sec')
-        sleep(waittime)
+        sleep(waittime-0.1)
         # save connected clients
         serv_ip = [cl.sock.getpeername()[0] for cl in clients if cl.isconnected]
         return serv_ip
 
-    def __init__(self,port, *args, **kwargs):
-        self.port = port
-        self.connects = []
+    def server_list(port, self_interfaces = False, localhost=False, waittime=2):
+        interface = test_network(loc=localhost)
+
+        if self_interfaces:
+            return search_server(port,interface,waittime)
+
+        s_list = []
+        for iface in interface:
+            ip_to_test = ip_to_search(iface)
+            s_list += search_server(port,ip_to_test,waittime=waittime)
+        return s_list
+
+    return server_list(port=port,self_interfaces=self_interfaces,localhost=localhost,waittime=waittime)
+
+
+
+port = 80
+print(find_server(port=port, waittime=1, self_interfaces=False,localhost=False))
+
