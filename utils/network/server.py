@@ -39,11 +39,7 @@ class Server:
             print('ошибка :D или выход')
 
     def session(self, conn, addr):
-        # print('server recv data',addr)
-        adress = str(addr)
-        client_online = True
-        #
-        while client_online and self.istalk:
+        if self.istalk:
             ckey = conn.recv(1024)
             if ckey:
                 # print(ckey)
@@ -51,13 +47,12 @@ class Server:
                     ckey = rsa.key.PublicKey.load_pkcs1(ckey)
                 except:
                     conn.close()
-                    client_online = False
-                    break
+                    return
                 if ckey in self.keys.keys():
                     # знакомый
-                    #print('Привет')
+                    # print('Привет')
                     pass
-
+                # pass
                 # сессионный ключ для этого клиента
                 aes_key = rsa.randnum.read_random_bits(128)
                 self.keys.update({ckey: (conn, aes_key)})
@@ -67,7 +62,7 @@ class Server:
                 conn.send(encrypted_aes_key)
                 # начинаем общение
                 blocks = []
-                while client_online and self.istalk:
+                while self.istalk:
                     encrypt_block = conn.recv(1024)
                     if encrypt_block:
                         # try:
@@ -79,15 +74,7 @@ class Server:
                             msg = b''.join(blocks)
                             blocks = []
 
-                            self.incomming_message(msg.decode().strip('\0'), ckey)
-
-                # except:
-
-                # print('сервер: ошибка при получении / расшифровке ')
-
-                # conn.close()
-                # client_online = False
-                # break
+                            self.incoming_message(msg.decode().strip('\0'), ckey)
 
         conn.close()
 
@@ -111,7 +98,7 @@ class Server:
             conn.send(msg)
             sleep(0.1)
 
-    def incomming_message(self, message, client_key):
+    def incoming_message(self, message, client_key):
         # print('incomm server ', message)
         self.new_message(message, client_key)
         '''

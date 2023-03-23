@@ -66,7 +66,7 @@ class Client:
 
         return pubkey, privkey
 
-    def ping(self):
+    def session(self):
         try:
             data_key = self.pubkey.save_pkcs1()
             self.sock.send(data_key)

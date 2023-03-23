@@ -1,19 +1,17 @@
-
-
-from assistent import Assistant
-from plugin import Plugin
-
 from utils.network.server import Server
 
-class TerminalServer(Server):
-    def __init__(self, addresse ='127.0.0.1', port=5555):
-        super(TerminalAssistant).__init__(addresse=addresse,port=port)
-
+from assistent import Assistant
 
 class TerminalAssistant(Assistant):
 
-    def __init__(self):
+    def __init__(self,addresse='127.0.0.1', port=5555):
         super(TerminalAssistant,self).__init__()
+        self.server = Server(addresse=addresse, port=port)
+        self.server.incoming_message = self.incoming_message
+
+    def incoming_message(self, message, client_key):
+        answer = self.terminal_executer(message)
+        self.server.send_message(str(answer), client_key)
 
     #virtual func from Assistant
     def on_event(self, new_event):
@@ -238,6 +236,14 @@ class TerminalAssistant(Assistant):
             #Plugin.event.add(msg)
             print(self.terminal_executer(text))
         self.loop_stop()
+
+class TerminalServer(TerminalAssistant):
+    def __init__(self, addresse='127.0.0.1', port=5555):
+        super(TerminalServer).__init__()
+        self.server = Server(addresse=addresse, port=port)
+
+
+
 
 
 

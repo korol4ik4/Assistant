@@ -64,6 +64,6 @@ def find_server(port,self_interfaces=False,localhost = False, waittime=2):
 
 
 
-port = 80
+port = 5555
 print(find_server(port=port, waittime=1, self_interfaces=False,localhost=False))
 
