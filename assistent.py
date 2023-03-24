@@ -17,7 +17,7 @@ class Assistant(object):
         self.all_plugins = {}  # словарь {str - имя плагина: object - инициализированный плагин}
         log_file_name = "assistant.log"
         logger_name = "Assistant"
-        log_level = logging.DEBUG  # INFO
+        log_level = logging.INFO  # DEBUG  #
         self.logger = get_base_logger(log_file_name, logger_name, log_level)
         #self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         self.started = False

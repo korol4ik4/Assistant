@@ -7,8 +7,6 @@ while not c.isconnected:
     #print('connect..')
     if time()-tm>3:
         raise ConnectionError
-c.session()
-print('session key ', c.session_key)
 
 while c.isconnected:
     msg = input('>')

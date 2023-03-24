@@ -1,24 +1,20 @@
 import socket
 from threading import Thread
 
-from time import sleep
-import rsa
-import rsa.randnum
-import utils.network.aes as aes
+
 
 
 class Server:
-    def __init__(self, port, addresse =''):
+    def __init__(self, port, address =''):
         self.sock = socket.socket()
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((addresse, port))
+        self.sock.bind((address, port))
         self.sock.listen(1000)
-        self.conns = []
-        self.addrs = []
         self.count = 0
+        self.conns = {}
         self.conn_thread()
         self.istalk = True
-        self.keys = {}
+
 
     # self.last_msg ={}
 
@@ -35,88 +31,26 @@ class Server:
             tlk.start()
             if self.istalk:
                 self.conn_thread()
+            if not conn in self.conns:
+                self.conns.update({conn:addr})
         except:
             print('ошибка :D или выход')
 
     def session(self, conn, addr):
-        if self.istalk:
-            ckey = conn.recv(1024)
-            if ckey:
-                # print(ckey)
-                try:
-                    ckey = rsa.key.PublicKey.load_pkcs1(ckey)
-                except:
-                    conn.close()
-                    return
-                if ckey in self.keys.keys():
-                    # знакомый
-                    # print('Привет')
-                    pass
-                # pass
-                # сессионный ключ для этого клиента
-                aes_key = rsa.randnum.read_random_bits(128)
-                self.keys.update({ckey: (conn, aes_key)})
-                # шифруем  aes ключ публичным ключом клиента
-                encrypted_aes_key = rsa.encrypt(aes_key, ckey)
-                # посылаем
-                conn.send(encrypted_aes_key)
-                # начинаем общение
-                blocks = []
-                while self.istalk:
-                    encrypt_block = conn.recv(1024)
-                    if encrypt_block:
-                        # try:
-                        block = aes.shot_decrypt(encrypt_block, aes_key)
-
-                        blocks.append(block)
-
-                        if block.decode().find('\0') > -1:
-                            msg = b''.join(blocks)
-                            blocks = []
-
-                            self.incoming_message(msg.decode().strip('\0'), ckey)
-
+        print(f'start session with {addr}')
+        while self.istalk:
+            msg = conn.recv(1024)
+            self.incoming_message(msg.decode(),conn)
         conn.close()
 
-    def send_message(self, msg, client_key):
-        '''
-        while self.last_msg[client_key]:
-            pass
-        self.last_msg.update({client_key:msg})
-        '''
-        self.send_string(msg, client_key)
 
-    def send_string(self, msg, client_key):
 
-        if client_key in self.keys.keys():
-            conn, sess_key = self.keys[client_key]
+    def send_message(self, message, conn):
+        msg = message.encode()
+        conn.send(msg)
 
-        msg = msg.encode()
-        enc_msg = aes.encrypt(msg, sess_key)
-        # print(msg)
-        for msg in enc_msg:
-            conn.send(msg)
-            sleep(0.1)
 
-    def incoming_message(self, message, client_key):
-        # print('incomm server ', message)
-        self.new_message(message, client_key)
-        '''
-        if client_key not in self.last_msg.keys():
-            self.last_msg.update({client_key:''})			
-        if self.last_msg[client_key]:
-            if self.last_msg[client_key] == message:
-                print('сервер: мессага отправлена и принята ',message)
-                self.last_msg.update({client_key:''})
-            else:
-
-                self.send_message(self.last_msg[client_key],client_key)
-        else:				
-            #print('сервер: сообщение от клиента', message)
-            self.new_message(message,client_key)
-            self.send_string(message, client_key=client_key)
-    '''
-
-    def new_message(self, message, mfrom):
-        print(message, mfrom)
+    def incoming_message(self, message,conn):
+        print('from ', conn)
+        print(message)
 

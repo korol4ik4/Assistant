@@ -4,32 +4,51 @@ from assistent import Assistant
 
 class TerminalAssistant(Assistant):
 
-    def __init__(self,addresse='127.0.0.1', port=5555):
+    def __init__(self,address='127.0.0.1', port=5555):
         super(TerminalAssistant,self).__init__()
-        self.server = Server(addresse=addresse, port=port)
+        self.server = Server(address=address, port=port)
         self.server.incoming_message = self.incoming_message
+        self.conn = None
 
-    def incoming_message(self, message, client_key):
+    def incoming_message(self, message, conn):
+        self.conn = conn
+        print(message,conn)
         answer = self.terminal_executer(message)
-        self.server.send_message(str(answer), client_key)
+        print(answer)
+        self.server.send_message(str(answer), conn)
 
     #virtual func from Assistant
     def on_event(self, new_event):
+
         if self._list_event:
             if not self._event_sender:
-                print('Terminal new event ', new_event())
+                if self.conn:
+                    self.server.send_message(str(new_event()), self.conn)
+                else:
+                    print('Terminal new event ', new_event())
             elif 'sender' in new_event():
                 if isinstance(self._event_sender, (list,tuple)):
                     if new_event.sender in self._event_sender:
-                        print('Termina new event ', new_event())
+                        if self.conn:
+                            self.server.send_message(str(new_event()), self.conn)
+                        else:
+                            print('Termina new event ', new_event())
     # virtual func from Assistant
     def on_task(self, plugin_name, msg):
+        outstr = 'Termina new task for {0} msg {1}'.format(plugin_name,msg())
         if self._list_task:
             if not self._task_actor:
-                print('Termina new task for {0} msg {1}'.format(plugin_name,msg()))
+                if self.conn:
+                    self.server.send_message(outstr, self.conn)
+                else:
+                    print(outstr)
             if isinstance(self._task_actor, (list,tuple)):
                 if plugin_name in self._task_actor:
-                    print('Termina new task for {0} msg {1}'.format(plugin_name,msg()))
+                    if self.conn:
+                        self.server.send_message(outstr, self.conn)
+                    else:
+                        print(outstr)
+
     @staticmethod
     def terminal_parser(terminal_input):
         def brace(istr: str, brace='{}'):
@@ -236,11 +255,6 @@ class TerminalAssistant(Assistant):
             #Plugin.event.add(msg)
             print(self.terminal_executer(text))
         self.loop_stop()
-
-class TerminalServer(TerminalAssistant):
-    def __init__(self, addresse='127.0.0.1', port=5555):
-        super(TerminalServer).__init__()
-        self.server = Server(addresse=addresse, port=port)
 
 
 
