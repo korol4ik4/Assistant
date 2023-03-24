@@ -11,10 +11,14 @@ class TerminalAssistant(Assistant):
         self.conn = None
 
     def incoming_message(self, message, conn):
+        '''
+        if not (message and conn):
+            return
+        '''
         self.conn = conn
-        print(message,conn)
+        #print(message,conn)
         answer = self.terminal_executer(message)
-        print(answer)
+        #print(answer)
         self.server.send_message(str(answer), conn)
 
     #virtual func from Assistant
@@ -66,6 +70,7 @@ class TerminalAssistant(Assistant):
         # str =" key1 :value1,key2: value2"
         def str2dict(dstr):
             out_dict = {}
+            dstr = dstr.replace("'","")
             itms = dstr.split(',')
             try:
                 for itm in itms:

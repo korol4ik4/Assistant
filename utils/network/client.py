@@ -6,8 +6,9 @@ class Client:
     def __init__(self,address, port):
         self.sock = socket.socket()
         self.isconnected = False
-        self.connect(address, port)
+        self.thr = None
 
+        self.connect(address, port)
 
     # self.last_msg=''
 
@@ -24,8 +25,8 @@ class Client:
 
     def connect(self, adresse, _port, waitsec = None):
         self.sock.settimeout(waitsec)
-        thr = Thread(target=self.__connect, args=(adresse, _port))
-        thr.start()
+        self.thr = Thread(target=self.__connect, args=(adresse, _port))
+        self.thr.start()
 
         #thr.join(timeout=waitsec)
 
@@ -39,8 +40,17 @@ class Client:
 
     def recv_msg(self):
         while self.isconnected:
-            msg = self.sock.recv(1024)
-            self.incoming_message(msg.decode())
+            try:
+                msg = self.sock.recv(1024)
+                self.incoming_message(msg.decode())
+            except:
+                break
+
+    def close(self):
+        self.isconnected = False
+        self.sock.close()
+        self.thr.join()
+
 
     def incoming_message(self, message):
         print(message)

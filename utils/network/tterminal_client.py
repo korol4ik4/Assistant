@@ -10,6 +10,7 @@ while not c.isconnected:
 
 while c.isconnected:
     msg = input('>')
+    c.send_message(msg)
     if msg == 'exit':
         break
-    c.send_message(msg)
+c.close()

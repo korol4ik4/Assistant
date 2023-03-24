@@ -40,6 +40,8 @@ class Server:
         print(f'start session with {addr}')
         while self.istalk:
             msg = conn.recv(1024)
+            if not msg:
+                break
             self.incoming_message(msg.decode(),conn)
         conn.close()
 
@@ -47,7 +49,11 @@ class Server:
 
     def send_message(self, message, conn):
         msg = message.encode()
-        conn.send(msg)
+        try:
+            conn.send(msg)
+        except:
+            pass
+
 
 
     def incoming_message(self, message,conn):
