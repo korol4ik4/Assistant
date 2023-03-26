@@ -21,7 +21,7 @@ class Plugin(object):
         self.logger = logging.getLogger("Assistant.Plugin")
         if self.default_options:
             # загрузка настроек
-            self.options = Options(self.name, self.default_options, path="plugin_options").get()
+            self.options = Options(self.__class__.__name__, self.default_options, path="plugin_options").get()
 
     def talk_to(self, to_name, **keyword):  # подписать plugin to_name на события от текущего plugin self.name
         if len(keyword) < 1:
