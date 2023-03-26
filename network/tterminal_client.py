@@ -1,7 +1,8 @@
 from client import Client
 from time import time
-
 import os
+
+## start in terminal/console etc.
 
 class TerminalTail:
     def __init__(self,*args,**kwargs):
