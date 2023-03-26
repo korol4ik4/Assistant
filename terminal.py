@@ -1,4 +1,4 @@
-from utils.network.server import Server
+from network.server import Server
 
 from assistent import Assistant
 
