@@ -1,61 +1,31 @@
-import socket
+
+from network.network_threading import NetwokThread
 from threading import Thread
 
 
-class Client:
-    def __init__(self,address, port):
-        self.sock = socket.socket()
-        self.isconnected = False
-        self.thr = None
+class Client(NetwokThread):
+    def __init__(self,port,address="127.0.0.1",timeout = 25,keys_path='keys', keys_name='client_rsa'):
+        super(Client,self).__init__(timeout = timeout,keys_path=keys_path, keys_name=keys_name)
+        self.port=port
+        self.address = address
+        self.create_session()
 
-        self.connect(address, port)
-
-    # self.last_msg=''
-
-    def __connect(self, adresse, _port):
-        #print('client connect to ',adresse,_port)
-        try:
-            self.sock.connect((adresse, _port))
-            self.isconnected = True
-            self.recv_msg()
-
-        except:
-            #no route to host
-            pass
-
-    def connect(self, adresse, _port, waitsec = None):
-        self.sock.settimeout(waitsec)
-        self.thr = Thread(target=self.__connect, args=(adresse, _port))
-        self.thr.start()
-
-        #thr.join(timeout=waitsec)
-
-    def send_message(self, message):
-        msg = message.encode()
-        self.sock.send(msg)
-
-
-    # self.isconnected=True
-    # self.recv_msg()
-
-    def recv_msg(self):
-        while self.isconnected:
-            try:
-                msg = self.sock.recv(1024)
-                self.incoming_message(msg.decode())
-            except:
-                break
+    def create_session(self):
+        self.connect(self.address, self.port)
+        #print('client connected',self.address)
+        self.sock.__session__(serv=False)
+        #print('client session created ',self.sock.session)
+        thr_recv = Thread(target=self._recv_loop, args=(self.sock,), name=f'receive loop {self.address}')
+        thr_recv.start()
+        return True
+    def incoming(self, service_message, data, connect):
+        print(service_message, data, connect)
+        #connect.__send__('Hello'.encode(), data_type='text')
 
     def close(self):
-        self.isconnected = False
+        self.is_run = False
         self.sock.close()
-        self.thr.join()
 
-
-    def incoming_message(self, message):
-        print(message)
-
-
-
-
+    def send_data(self,data,**kwargs):
+        self.sock.__send__(data, **kwargs)
 

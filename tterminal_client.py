@@ -1,6 +1,7 @@
-from client import Client
+from network.client import Client
 from time import time
 import os
+from message import Message
 
 ## start in terminal/console etc.
 
@@ -29,8 +30,9 @@ class TerminalTail:
         for key, value in kwargs.items():
             if key in self.__dict__:
                 self.__dict__[key] = value
-        self.colorized = f'\033[{self.ascii_byte};{self.fg_color};{self.bg_color}m'
 
+        self.colorized = '\033[0;0;0m'
+        #self.set_color(fg='purple')  # ,bg='black')
         self._additional_store = ''
         self._input_store =''
 
@@ -59,7 +61,7 @@ class TerminalTail:
         start_byte = 30  # black FG color
         colors = ('black', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white')
         if color not in colors:
-            return
+            return ''
 
         if ground == 'FG':
             start_byte += 0
@@ -72,6 +74,14 @@ class TerminalTail:
             start_byte += 60
 
         return start_byte + colors.index(color)
+
+    def set_color(self,fg='',bg='',atr=1):  #atr=1:bold
+        self.fg_color=self.get_color(fg)
+        self.bg_color=self.get_color(bg,'BG')
+        print(self.fg_color, self.bg_color)
+        self.ascii_byte =atr
+        self.colorized = f"\033[{self.ascii_byte};{self.fg_color}"
+        self.colorized += 'm' if not self.bg_color else f";{self.bg_color}m"
 
     def get_line(self, col=1, row=1 ,separator='',symbol=''):
         line = '\033[' + str(col) + ';' + str(row) + 'H'
@@ -141,43 +151,73 @@ class TClient(Client):
         super(TClient, self).__init__(*args,**kwargs)
         self.tail = TerminalTail()
         tm = time()
-        while not self.isconnected:
+        while not self.is_run:
             # print('connect..')
             if time() - tm > 10:
                 raise ConnectionError
+        self.tail.addition("connected to server")
 
-    def incoming_message(self, message):
-        self.tail.clear()
-        self.tail.input_store()
-        self.tail.addition(message)
-        print(self.tail.input_line())
-        print('\033[2A')
-        #print('>')
-        #print(self.tail.to_input_line())
-        #self.tail.terminal_input()
-        #self.tail.to_input_line()
+    def incoming(self, service_message, data, connect):
+        srv_msg = Message(service_message)
 
+        if srv_msg.data_type == "message":
+            message = data.decode()
+            #print(message)
+            self.tail.clear()
+            self.tail.input_store()
+            self.tail.addition(message)
+            print(self.tail.input_line())
+            print('\033[2A')
+        else:
+            print(service_message)
+            #print('>')
+            #print(self.tail.to_input_line())
+            #self.tail.terminal_input()
+            #self.tail.to_input_line()
+
+    def reconnect(self,msg=""):
+        addrerss = self.address
+        port = self.port
+        self.__init__(address=addrerss,port=port, timeout=None)
+        if msg:
+            self.send_data(msg.encode(), data_type = "message")
 
     def run(self):
-
-        while self.isconnected:
+        msg = ""
+        while self.is_run:
             self.tail.clear()
             self.tail.input_store()
             self.tail.addition()
-            msg = self.tail.terminal_input()
             if msg == 'clear':
                 self.tail._input_store=''
                 self.tail._additional_store = ''
-                self.tail.clear()
+                continue
+            if msg == "connect":
+                self.tail.addition(str(self.sock))
                 continue
 
-            self.send_message(msg)
-
+            msg = self.tail.terminal_input()
+            if self.sock.fileno() < 0:
+                break
+            if msg:
+                try:
+                    self.send_data(msg.encode(), data_type = "message")
+                except:
+                    self.tail.addition("send data fail")
+                    break
             if msg == 'exit':
                 break
 
         self.close()
+        self.tail.clear()
+
+        if msg and msg != "exit":
+
+            self.reconnect(msg)
 
 
-c = TClient('127.0.0.1', 5555)
+c = TClient(address='127.0.0.1', port=5555,timeout = None)
+
 c.run()
+
+###

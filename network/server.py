@@ -1,62 +1,41 @@
+
+from network.network_threading import NetwokThread
 import socket
-from threading import Thread
 
-
-
-
-class Server:
-    def __init__(self, port, address =''):
-        self.sock = socket.socket()
+class Server(NetwokThread):
+    def __init__(self, port, address ='',timeout = 120,keys_path='keys', keys_name='server_rsa'):
+        super(Server,self).__init__(timeout = timeout,keys_path=keys_path, keys_name=keys_name)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((address, port))
         self.sock.listen(1000)
-        self.count = 0
-        self.conns = {}
-        self.conn_thread()
-        self.istalk = True
+        self.listen()
 
+    def close(self):
+        self.is_run = False
+        #close accept thread
 
-    # self.last_msg ={}
-
-    def conn_thread(self):
-        self.count += 1
-        print('connect weit ', self.count)
-        serv = Thread(target=self.connect, args=())
-        serv.start()
-
-    def connect(self):
         try:
-            conn, addr = self.sock.accept()
-            tlk = Thread(target=self.session, args=(conn, addr))
-            tlk.start()
-            if self.istalk:
-                self.conn_thread()
-            if not conn in self.conns:
-                self.conns.update({conn:addr})
-        except:
-            print('ошибка :D или выход')
+            address, port = self.sock.getsockname()
+            if address == '0.0.0.0':
+                address = '127.0.0.1'
+            exit_sock = socket.socket()
+            exit_sock.settimeout(2)
+            exit_sock.connect((address, port))
+            exit_sock.send(b'')
 
-    def session(self, conn, addr):
-        print(f'start session with {addr}')
-        while self.istalk:
-            msg = conn.recv(1024)
-            if not msg:
-                break
-            self.incoming_message(msg.decode(),conn)
-        conn.close()
-
-
-
-    def send_message(self, message, conn):
-        msg = message.encode()
-        try:
-            conn.send(msg)
+            for conn in self.control.connect:
+                conn.close()
         except:
             pass
+        ########################
+        self.sock.close()
 
+    def incoming(self, service_message, data, connect):
+        print(service_message, data, connect)
+        #connect.__send__('Hello'.encode(), data_type='text')
 
+    #  @staticmethod
+    def send_data(self,connect, data, **kwargs):
 
-    def incoming_message(self, message,conn):
-        print('from ', conn)
-        print(message)
+        connect.__send__(data, **kwargs)
 

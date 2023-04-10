@@ -19,25 +19,45 @@
 #
 # И абстрагируемся
 
-class Message:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+# Класс - надстройка над классом dict, упрощающий работу с множеством переменных, например класса
+# простой переход от json к dict и обратно
+# простое добавление и обновление значений переменных, удаление переменных
+# made by korol4ik
+import json
 
-    def __call__(self, **kwargs):
+class Message:
+    def __init__(self, *args, **kwargs):
+        self.__dict__.update(kwargs)
+        self(*args)
+
+    def __call__(self,*args, **kwargs):
         if kwargs:
             self.__dict__.update(kwargs)
-            return self.__dict__
+        if args:
+            for jstr in args:
+                self.json(jstr)
         return self.__dict__
 
+    def __str__(self):
+        return self.json()
 
-'''
-# Example
-msg = Message(message_sender = 'INPUT')
-d1 = msg()
-d2 = msg(text = "easy text")
-msg.id = 15
-# del msg.text
-print(d1,"\n",d2,"\n")
-# {'message_sender': 'INPUT', 'text': 'easy text', 'id': 15} 
-# {'message_sender': 'INPUT', 'text': 'easy text', 'id': 15}
-'''
+    def __repr__(self):
+        return self.json()
+
+    def __getattr__(self,name):
+        return None
+
+    def json(self,_json=None):
+        if not _json:
+            return json.dumps(self.__dict__)
+        else:
+            try:
+                _add = json.loads(_json)
+                self(**_add)
+                return json.dumps(self.__dict__)
+            except Exception as e:
+                print(f'can not update message from json {_json}, {e}')
+    def rm(self, *args):  # list of keys
+        for key in args:
+            if key in self.__dict__:
+                self.__dict__.pop(key)

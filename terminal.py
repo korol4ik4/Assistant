@@ -1,25 +1,28 @@
 from network.server import Server
-
 from assistent import Assistant
-
+from message import Message
 class TerminalAssistant(Assistant):
 
     def __init__(self,address='127.0.0.1', port=5555):
         super(TerminalAssistant,self).__init__()
         self.server = Server(address=address, port=port)
-        self.server.incoming_message = self.incoming_message
+        self.server.incoming = self.incoming
         self.conn = None
 
-    def incoming_message(self, message, conn):
-        '''
-        if not (message and conn):
-            return
-        '''
-        self.conn = conn
-        #print(message,conn)
-        answer = self.terminal_executer(message)
-        #print(answer)
-        self.server.send_message(str(answer), conn)
+    def incoming(self, service_message, data, connect):
+
+        srv_msg = Message(service_message)
+
+        if srv_msg.data_type == 'message':
+            message = data.decode()
+
+            answer = self.terminal_executer(message)
+
+            self.server.send_data(connect, str(answer).encode(), data_type="message")
+            self.conn = connect
+            print(f"received: {service_message}' \ndata = {data}")
+        else:
+            print("fail service message: ", service_message)
 
     #virtual func from Assistant
     def on_event(self, new_event):
@@ -27,14 +30,14 @@ class TerminalAssistant(Assistant):
         if self._list_event:
             if not self._event_sender:
                 if self.conn:
-                    self.server.send_message(str(new_event()), self.conn)
+                    self.server.send_data(self.conn,str(new_event()).encode(), data_type="message")
                 else:
                     print('Terminal new event ', new_event())
             elif 'sender' in new_event():
                 if isinstance(self._event_sender, (list,tuple)):
                     if new_event.sender in self._event_sender:
                         if self.conn:
-                            self.server.send_message(str(new_event()), self.conn)
+                            self.server.send_data(self.conn,str(new_event()).encode(), data_type="message")
                         else:
                             print('Termina new event ', new_event())
     # virtual func from Assistant
@@ -43,13 +46,13 @@ class TerminalAssistant(Assistant):
         if self._list_task:
             if not self._task_actor:
                 if self.conn:
-                    self.server.send_message(outstr, self.conn)
+                    self.server.send_data(self.conn, outstr.encode() , data_type="message")
                 else:
                     print(outstr)
             if isinstance(self._task_actor, (list,tuple)):
                 if plugin_name in self._task_actor:
                     if self.conn:
-                        self.server.send_message(outstr, self.conn)
+                        self.server.send_data(self.conn, outstr.encode() , data_type="message")
                     else:
                         print(outstr)
 
@@ -187,8 +190,7 @@ class TerminalAssistant(Assistant):
         cmd, opt, args, kwargs = param
 
         if not (cmd and opt):  # else: cmd and opt > 0
-            #self.terminal_error(param)
-            return f"don't parse {param}"
+            return self.terminal_executer("help")
         #[1,2] ("add", "list"),  # event
         #[2,3] ("add", "list", "delete"),  # task
         #[3,2] ("start", "stop"),  # loop
@@ -244,6 +246,89 @@ class TerminalAssistant(Assistant):
 
             elif opt == 4:  # close
                 return self.close_plugin(*args)
+
+
+        elif cmd == 5:  # help
+            options = (("add", "list"),  # event
+                       ("add", "list", "delete"),  # task
+                       ("start", "stop", "pause", "status"),  # loop
+                       ("list", "import", "load", "close"),  # plugin
+                       ("", "event", "task", "loop", "plugin"),)  # help
+            if opt == 1:  # ""
+                return f"possible commands: {', '.join(options[4][1:])}"
+            elif opt == 2:  # event
+                if not args or args[0] not in options[0]:
+                    #print(*args,options[0])
+                    return f"possible options for event: {', '.join(options[0])}"
+                else:
+                    out_str = ""
+                    if "add" in args:
+                        out_str += "event add event\n"
+                        out_str += "Example:\n"
+                        out_str += "{sender: STT, text: Hello world, lang : en}"
+                    elif "list" in args:
+                        out_str += "event list all/nix/PLUGIN_NAME\n"
+                        out_str += "Example:\n"
+                        out_str += "event list STT TERMINAL TTS\n"
+                        out_str += "event list STT\n"
+                        out_str += "event list nix"
+                    return out_str
+
+            elif opt == 3:  # task
+                if not args or args[0] not in options[0]:
+                    out_str = f"possible options for task : {', '.join(options[1])}, help\n"
+                    return out_str
+                else:
+                    out_str = ""
+                    if "add" in args:
+                        out_str += "task add SENDER ACCEPTOR \n"
+                        out_str += "SENDER - name of plugin. Events creator \n"
+                        out_str += "ACCEPTOR - name of plugin. Events receiver\n"
+                        out_str += "Example:\n"
+                        out_str += "task add TTS STT {text: * }"
+                        out_str += "simple repeater :)"
+                    elif "list" in args:
+                        out_str += "task list all/nix/PLUGIN_NAME\n"
+                        out_str += "Example:\n"
+                        out_str += "task list STT TERMINAL TTS\n"
+                        out_str += "task list STT\n"
+                        out_str += "task list nix\n"
+                        out_str += "without options returned current list of tasks\n"
+                        out_str += "task list"
+                    elif "delete" in args:
+                        out_str += "task delete SENDER ACCEPTOR (keywords,) \n"
+                        out_str += "task delete all\n"
+                        out_str += "Example:\n"
+                        out_str += "task delete STT TTS"
+                    return out_str
+            elif opt == 4:  # loop
+                out_str =  f"possible options for loop: {', '.join(options[2])}\n"
+                if args:
+                    out_str += "loop options have not arguments"
+                return out_str
+
+            elif opt == 5:  # plugin
+                if not args or args[0] not in options[0]:
+                    return f"possible options for plugin: {', '.join(options[3])}"
+                else:
+                    out_str = ""
+                    if "list" in args:
+                        out_str += "plugin list loaded/imported/all"
+                    elif "import" in args:
+                        out_str += "plugin import path\n"
+                        out_str += "# all plug_*.py files from order"
+                    elif "load" in args:
+                        out_str += "plugin load <NAME OF PLUGINS>\n"
+                        out_str += "Example:\n"
+                        out_str += "plugin load STT TERMINAL TTS\n"
+                        out_str += "plugin load all"
+                    elif "close" in args:
+                        out_str += "plugin close <NAME OF PLUGINS>"
+                        out_str += "Example:\n"
+                        out_str += "plugin close STT TERMINAL TTS\n"
+                        out_str += "plugin close all"
+            else:
+                return param
         return param
 
 
