@@ -13,14 +13,10 @@ class TerminalAssistant(Assistant):
     def incoming(self, service_message, data, connect):
 
         srv_msg = Message(service_message)
-
         if srv_msg.data_type == 'message':
             message = data.decode()
-
             answer = self.terminal_executer(message,connect=connect)
-
             self.server.send_data(connect, str(answer).encode(), data_type="message")
-            self.conn = connect
             #print(f"received: {service_message}' \ndata = {data}")
         else:
             print("fail service message: ", service_message)
@@ -92,22 +88,34 @@ class TerminalAssistant(Assistant):
 
     # virtual func from Assistant
     def on_event(self, new_event):
+        bad_connect = []
         for connect, et in self.connects.items():
+            if connect not in self.server.control.connect:
+                bad_connect.append(connect)
+                continue
             if et.list_event:
                 if not et.elist:
                     self.server.send_data(connect, str(new_event()).encode(), data_type="message")
                 elif new_event.sender in et.elist:
                         self.server.send_data(connect, str(new_event()).encode(), data_type="message")
+        for connect in bad_connect:
+            self.connects.pop(connect)
 
     # virtual func from Assistant
     def on_task(self, plugin_name, msg):
+        bad_connect = []
         out_str = 'Termina new task for {0} msg {1}'.format(plugin_name, msg())
         for connect, et in self.connects.items():
+            if connect not in self.server.control.connect:
+                bad_connect.append(connect)
+                continue
             if et.list_task:
                 if not et.tlist:
                     self.server.send_data(connect, out_str.encode(), data_type="message")
                 elif plugin_name in et.tlist:
-                    self.server.send_data(self.conn, out_str.encode(), data_type="message")
+                    self.server.send_data(connect, out_str.encode(), data_type="message")
+        for connect in bad_connect:
+            self.connects.pop(connect)
 
     #virtual func from Assistant
 
