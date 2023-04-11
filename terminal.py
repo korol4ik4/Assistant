@@ -20,7 +20,7 @@ class TerminalAssistant(Assistant):
 
             self.server.send_data(connect, str(answer).encode(), data_type="message")
             self.conn = connect
-            print(f"received: {service_message}' \ndata = {data}")
+            #print(f"received: {service_message}' \ndata = {data}")
         else:
             print("fail service message: ", service_message)
 
