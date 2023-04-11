@@ -22,40 +22,18 @@ class Assistant(object):
         #self.init_plugins(path="plugin")  # имя директории с файлами плагинов
         self.started = False
         self.paused = False
-        self._list_event = False
-        self._event_sender = []
-        self._list_task = False
-        self._task_actor = []
         self.thr_loop = None
 
     # --------------------------------------------
+
+    def task_list_(self):
+        return Plugin.task()
+
     @staticmethod
     def event_add(message: dict):
         msg = Message(**message)
         return Plugin.event.add(msg)
 
-    def event_list(self,*args):
-        self._event_sender = []
-        if args:
-            if args[0] == 'all':
-                self._list_event = True
-            elif args[0] == 'nix':
-                self._list_event = False
-            else:  # names of Plugin
-                # test: Plugin with name is loaded
-                self._event_sender = [name for name in args if name in self.all_plugins.keys()]
-                if self._event_sender:
-                    self._list_event = True
-        else:
-            self._list_event = True  # default 'all'
-
-        if not self._list_event:
-            return "not listen events"
-        if self._event_sender:
-            return f'listen events from {self._event_sender}'
-        else:
-            return 'listen all events'
-    # --------------------------------------------
 
     @staticmethod
     def task_add(sender, acceptor, **kwargs):
@@ -64,29 +42,6 @@ class Assistant(object):
         new_task = {sender: {acceptor: kwargs}}
         return Plugin.task.update(new_task)
 
-    def task_list(self, *args):
-        if len(args) == 0:
-            return Plugin.task()
-        elif len(args) == 1:
-            if args[0] == 'all':
-                self._task_actor = []
-                self._list_task = True
-            elif args[0] == 'nix':
-                self._list_task = False
-            elif args[0] in self.all_plugins.keys():
-                self._task_actor.append(args[0])
-                self._list_task = True
-        else:
-            self._task_actor = [name for name in args if name in self.all_plugins.keys()]
-            if self._task_actor:
-                self._list_task = True
-
-        if not self._list_task:
-            return "not listen tasks"
-        if self._task_actor:
-            return f'listen tasks for {self._task_actor}'
-        else:
-            return 'listen all tasks'
 
     @staticmethod
     def task_del(*args):
