@@ -7,11 +7,7 @@ class TerminalAssistant(Assistant):
         super(TerminalAssistant,self).__init__()
         self.server = Server(address=address, port=port,timeout=None)
         self.server.incoming = self.incoming
-        self.conn = None
-        self._list_event = False
-        self._event_sender = []
-        self._list_task = False
-        self._task_actor = []
+        self.connects = {}
 
 
     def incoming(self, service_message, data, connect):
@@ -21,7 +17,7 @@ class TerminalAssistant(Assistant):
         if srv_msg.data_type == 'message':
             message = data.decode()
 
-            answer = self.terminal_executer(message)
+            answer = self.terminal_executer(message,connect=connect)
 
             self.server.send_data(connect, str(answer).encode(), data_type="message")
             self.conn = connect
@@ -29,84 +25,91 @@ class TerminalAssistant(Assistant):
         else:
             print("fail service message: ", service_message)
 
-    def event_list(self,*args):
-        self._event_sender = []
-        if args:
-            if args[0] == 'all':
-                self._list_event = True
-            elif args[0] == 'nix':
-                self._list_event = False
-            else:  # names of Plugin
-                # test: Plugin with name is loaded
-                self._event_sender = [name for name in args if name in self.all_plugins.keys()]
-                if self._event_sender:
-                    self._list_event = True
-        else:
-            self._list_event = True  # default 'all'
-
-        if not self._list_event:
-            return "not listen events"
-        if self._event_sender:
-            return f'listen events from {self._event_sender}'
-        else:
-            return 'listen all events'
-    # --------------------------------------------
-    def task_list(self, *args):
+    def task_list(self,connect, *args):
         if len(args) == 0:
             return self.task_list_()
+        tsk = Message()
+        if not connect:
+            raise ValueError("connect is impossible: ",connect)
         elif len(args) == 1:
             if args[0] == 'all':
-                self._task_actor = []
-                self._list_task = True
+                tsk(list_task = True)
             elif args[0] == 'nix':
-                self._list_task = False
+                tsk(list_task = False)
             elif args[0] in self.all_plugins.keys():
-                self._task_actor.append(args[0])
-                self._list_task = True
+                tsk(list_task = True, tlist=[args[0],] )
         else:
-            self._task_actor = [name for name in args if name in self.all_plugins.keys()]
-            if self._task_actor:
-                self._list_task = True
+            tsk( tlist = [name for name in args if name in self.all_plugins.keys()])
+            if tsk.tlist:
+                tsk(list_task = True)
 
-        if not self._list_task:
+        if not self.connects.get(connect):
+            self.connects.update({connect:tsk})
+        else:
+            self.connects[connect](**tsk()) # update Message
+
+        if not tsk.list_task:
             return "not listen tasks"
-        if self._task_actor:
-            return f'listen tasks for {self._task_actor}'
+        if tsk.tlist:
+            return f'listen tasks for {tsk.tlist}'
         else:
             return 'listen all tasks'
 
     # --------------------------------------------
-    #virtual func from Assistant
-    def on_event(self, new_event):
 
-        if self._list_event:
-            if not self._event_sender:
-                if self.conn:
-                    self.server.send_data(self.conn,str(new_event()).encode(), data_type="message")
-                else:
-                    print('Terminal new event ', new_event())
-            elif 'sender' in new_event():
-                if isinstance(self._event_sender, (list,tuple)):
-                    if new_event.sender in self._event_sender:
-                        if self.conn:
-                            self.server.send_data(self.conn,str(new_event()).encode(), data_type="message")
-                        else:
-                            print('Termina new event ', new_event())
+    def event_list(self,connect, *args):
+        if not connect:
+            raise ValueError("connect is impossible: ",connect)
+        evn  = Message()
+        if args:
+            if args[0] == 'all':
+                evn(list_event = True)
+            elif args[0] == 'nix':
+                evn(list_event = False)
+            else:  # names of Plugin
+                # test: Plugin with name is loaded
+                evn(elist = [name for name in args if name in self.all_plugins.keys()])
+                if evn.elist:
+                    evn(list_event = True)
+        else:
+            evn(list_event = True)  # default 'all'
+
+        if not self.connects.get(connect):
+            self.connects.update({connect:evn})
+        else:
+            self.connects[connect](**evn()) # update Message
+
+        if not evn.list_event:
+            return "not listen events"
+        if evn.elist:
+            return f'listen events from {evn.elist}'
+        else:
+            return 'listen all events'
+    # --------------------------------------------
+
+
+    # --------------------------------------------
+
+    # virtual func from Assistant
+    def on_event(self, new_event):
+        for connect, et in self.connects.items():
+            if et.list_event:
+                if not et.elist:
+                    self.server.send_data(connect, str(new_event()).encode(), data_type="message")
+                elif new_event.sender in et.elist:
+                        self.server.send_data(connect, str(new_event()).encode(), data_type="message")
+
     # virtual func from Assistant
     def on_task(self, plugin_name, msg):
-        outstr = 'Termina new task for {0} msg {1}'.format(plugin_name,msg())
-        if self._list_task:
-            if not self._task_actor:
-                if self.conn:
-                    self.server.send_data(self.conn, outstr.encode() , data_type="message")
-                else:
-                    print(outstr)
-            if isinstance(self._task_actor, (list,tuple)):
-                if plugin_name in self._task_actor:
-                    if self.conn:
-                        self.server.send_data(self.conn, outstr.encode() , data_type="message")
-                    else:
-                        print(outstr)
+        out_str = 'Termina new task for {0} msg {1}'.format(plugin_name, msg())
+        for connect, et in self.connects.items():
+            if et.list_task:
+                if not et.tlist:
+                    self.server.send_data(connect, out_str.encode(), data_type="message")
+                elif plugin_name in et.tlist:
+                    self.server.send_data(self.conn, out_str.encode(), data_type="message")
+
+    #virtual func from Assistant
 
     @staticmethod
     def terminal_parser(terminal_input):
@@ -235,13 +238,13 @@ class TerminalAssistant(Assistant):
 
 
 
-    def terminal_executer(self,terminal_input:str):
+    def terminal_executer(self,terminal_input:str,connect=None):
         # [num_of_command, num_of_option, *args,**kwargs]
         param = self.terminal_parser(terminal_input)
         #print(param)
         cmd, opt, args, kwargs = param
 
-        if not (cmd and opt):  # else: cmd and opt > 0
+        if not cmd:  # else: cmd and opt > 0
             return self.terminal_executer("help")
         #[1,2] ("add", "list"),  # event
         #[2,3] ("add", "list", "delete"),  # task
@@ -253,9 +256,10 @@ class TerminalAssistant(Assistant):
                     return self.event_add(kwargs)  #add new event
                 else:
                     return f"nothing to add, kwargs = {kwargs}"
-
             elif opt ==2:  # list
-                return self.event_list(*args)
+                return self.event_list(connect, *args)
+            elif opt == 0:
+                return self.terminal_executer("help event")
 
         elif cmd == 2:  # task
             if opt == 1:  # add
@@ -265,12 +269,13 @@ class TerminalAssistant(Assistant):
                 else:
                     return "invalid number of arguments\n use '>help task add"  # неподходящие кол-во аргументов
             elif opt == 2:  # list
-                return self.task_list(*args)
-
+                return self.task_list(connect, *args)
             elif opt == 3:  # delete
                 if not args:
                     return "nothing to delete"  # нечего удалять
                 return  self.task_del(*args)
+            elif opt == 0:
+                return self.terminal_executer("help task")
 
         elif cmd == 3:  # loop
             if opt == 1:  # start
@@ -281,6 +286,8 @@ class TerminalAssistant(Assistant):
                 return self.loop_pause()
             elif opt == 4:  # status
                 return self.loop_stat()
+            elif opt == 0:
+                return self.terminal_executer("help loop")
 
 
         elif cmd == 4:  # plugin
@@ -295,9 +302,10 @@ class TerminalAssistant(Assistant):
                 if not args:  # нет имени плагина ( или all)
                     return "no plugin name or all"
                 return self.load_plugins(*args)
-
             elif opt == 4:  # close
                 return self.close_plugin(*args)
+            elif opt == 0:
+                return self.terminal_executer("help plugin")
 
 
         elif cmd == 5:  # help
