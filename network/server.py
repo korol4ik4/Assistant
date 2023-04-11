@@ -29,6 +29,7 @@ class Server(NetwokThread):
             pass
         ########################
         self.sock.close()
+        self.control.clean()
 
     def incoming(self, service_message, data, connect):
         print(service_message, data, connect)
@@ -36,6 +37,7 @@ class Server(NetwokThread):
 
     #  @staticmethod
     def send_data(self,connect, data, **kwargs):
-
-        connect.__send__(data, **kwargs)
+        stat = connect.__send__(data, **kwargs)
+        if not stat:
+            self.control.clean()
 
