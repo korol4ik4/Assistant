@@ -16,9 +16,9 @@ class TerminalTail:
         self.input_store_col_nums = 10
         self.input_store_col = 4
         self.input_store_row = 1
-        self.additional_store_col_nums = 10
+        self.additional_store_col_nums = 4
         self.additional_store_col = 16
-        self.additional_store_row = 1
+        self.additional_store_row = 0
 
         self.input_symbol = '>'
         self.input_separator = '-'
@@ -32,7 +32,7 @@ class TerminalTail:
                 self.__dict__[key] = value
 
         self.colorized = '\033[0;0;0m'
-        #self.set_color(fg='purple')  # ,bg='black')
+        #self.set_color(fg='purple',bg="cyan")  # ,bg='black')
         self._additional_store = ''
         self._input_store =''
 
@@ -144,6 +144,9 @@ class TerminalTail:
 
     def clear(self):
         print('\033[0;0;0m\033[0;0H\033[2J')
+    def clear_addit(self):
+        start = f"[\033{self.additional_store_col};{self.additional_store_row}H"  #  с начала блока
+        end = "\033[J"  # до конца
 
 
 class TClient(Client):
@@ -155,7 +158,7 @@ class TClient(Client):
             # print('connect..')
             if time() - tm > 10:
                 raise ConnectionError
-        self.tail.addition("connected to server")
+
 
     def incoming(self, service_message, data, connect):
         srv_msg = Message(service_message)
@@ -163,9 +166,10 @@ class TClient(Client):
         if srv_msg.data_type == "message":
             message = data.decode()
             #print(message)
-            self.tail.clear()
-            self.tail.input_store()
+            self.tail.clear_addit()
+            #self.tail.input_store()
             self.tail.addition(message)
+            #self.tail.input_store()
             print(self.tail.input_line())
             print('\033[2A')
         else:
@@ -178,7 +182,7 @@ class TClient(Client):
     def reconnect(self,msg=""):
         addrerss = self.address
         port = self.port
-        self.__init__(address=addrerss,port=port, timeout=None)
+        self.__init__(address=addrerss,port=port)
         if msg:
             self.send_data(msg.encode(), data_type = "message")
 
@@ -188,6 +192,7 @@ class TClient(Client):
             self.tail.clear()
             self.tail.input_store()
             self.tail.addition()
+            msg = self.tail.terminal_input()
             if msg == 'clear':
                 self.tail._input_store=''
                 self.tail._additional_store = ''
@@ -196,14 +201,12 @@ class TClient(Client):
                 self.tail.addition(str(self.sock))
                 continue
 
-            msg = self.tail.terminal_input()
             if self.sock.fileno() < 0:
                 break
             if msg:
                 try:
                     self.send_data(msg.encode(), data_type = "message")
                 except:
-                    self.tail.addition("send data fail")
                     break
             if msg == 'exit':
                 break
@@ -212,7 +215,6 @@ class TClient(Client):
         self.tail.clear()
 
         if msg and msg != "exit":
-
             self.reconnect(msg)
 
 
