@@ -5,7 +5,7 @@ class TerminalAssistant(Assistant):
 
     def __init__(self,address='127.0.0.1', port=5555):
         super(TerminalAssistant,self).__init__()
-        self.server = Server(address=address, port=port)
+        self.server = Server(address=address, port=port,timeout=None)
         self.server.incoming = self.incoming
         self.conn = None
 
