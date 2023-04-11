@@ -344,7 +344,7 @@ class TerminalAssistant(Assistant):
 
             elif opt == 3:  # task
                 if not args or args[0] not in options[0]:
-                    out_str = f"possible options for task : {', '.join(options[1])}, help\n"
+                    out_str = f"possible options for task : {', '.join(options[1])}"
                     return out_str
                 else:
                     out_str = ""
@@ -370,7 +370,7 @@ class TerminalAssistant(Assistant):
                         out_str += "task delete STT TTS"
                     return out_str
             elif opt == 4:  # loop
-                out_str =  f"possible options for loop: {', '.join(options[2])}\n"
+                out_str =  f"possible options for loop: {', '.join(options[2])}"
                 if args:
                     out_str += "loop options have not arguments"
                 return out_str
