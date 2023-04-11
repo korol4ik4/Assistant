@@ -144,9 +144,11 @@ class TerminalTail:
 
     def clear(self):
         print('\033[0;0;0m\033[0;0H\033[2J')
+
     def clear_addit(self):
-        start = f"[\033{self.additional_store_col};{self.additional_store_row}H"  #  с начала блока
+        start = f"\033[{self.additional_store_col};{self.additional_store_row}H"  #  с начала блока
         end = "\033[J"  # до конца
+        print(start+end)
 
 
 class TClient(Client):
@@ -165,13 +167,12 @@ class TClient(Client):
 
         if srv_msg.data_type == "message":
             message = data.decode()
-            #print(message)
             self.tail.clear_addit()
             #self.tail.input_store()
             self.tail.addition(message)
             #self.tail.input_store()
             print(self.tail.input_line())
-            print('\033[2A')
+            print('\033[2A')  # move cursor
         else:
             print(service_message)
             #print('>')
