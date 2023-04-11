@@ -7,7 +7,7 @@ class Server(NetwokThread):
         super(Server,self).__init__(timeout = timeout,keys_path=keys_path, keys_name=keys_name)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((address, port))
-        self.sock.listen(1000)
+        self.sock.listen(10)
         self.listen()
 
     def close(self):
