@@ -121,7 +121,7 @@ class TerminalAssistant(Assistant):
 
     @staticmethod
     def terminal_parser(terminal_input):
-        def brace(istr: str, brace='{}'):
+        def brace(istr: str, brace='{}',with_brace=True):
 
             if len(brace) != 2:
                 return istr, None
@@ -130,11 +130,18 @@ class TerminalAssistant(Assistant):
                 close_brace = istr.rfind(brace[1])
                 if close_brace > open_brace:
                     brace_content = istr[open_brace + 1:close_brace]
+                    if with_brace:
+                        brace_content = brace[0]+brace_content+brace[1]
                     return istr[:open_brace], brace_content
             return istr, None
 
         # str =" key1 :value1,key2: value2"
         def str2dict(dstr):
+            try:
+                msg= Message(dstr)
+                return msg()
+            except:
+                pass
             out_dict = {}
             dstr = dstr.replace("'","")
             itms = dstr.split(',')
@@ -146,6 +153,7 @@ class TerminalAssistant(Assistant):
                     out_dict.update({key.strip(): value.strip()})
             except:
                 print("can't " + dstr + ' to dict')
+                return
             return out_dict
 
         def token(tinput: str):
