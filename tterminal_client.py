@@ -17,14 +17,18 @@ class TerminalTail:
         self.input_store_row = 4
         self.input_store_col = 1
         self.additional_store_row = 16
-        self.additional_store_col = 0
+        self.additional_store_col = 1
 
         self.input_symbol = '>'
         self.input_separator = '-'
         self.input_store_symbol = '<'
         self.input_store_separator = '#'
-        self.additional_store_symbol = ' '
+        self.additional_store_symbol = '#'
         self.additional_store_separator = '*'
+
+        self.input_title = 'INPUT'
+        self.input_store_title = 'INPUT STORE'
+        self.additional_title = 'RECEIVE'
 
         for key, value in kwargs.items():
             if key in self.__dict__:
@@ -87,27 +91,29 @@ class TerminalTail:
         self.colorized = f"\033[{self.ascii_byte};{self.fg_color}"
         self.colorized += 'm' if not self.bg_color else f";{self.bg_color}m"
 
-    def get_line(self, col=1, row=1 ,separator='',symbol=''):
+    def get_line(self, col=1, row=1 ,separator='',symbol='',title=''):
         line = '\033[' + str(col) + ';' + str(row) + 'H'
         line += self.colorized
         if separator:
             t_size = self.terminal_size()
+            f_half = ( t_size[1] - len(title) ) // 2
+            s_half = t_size[1] - (f_half + len(title))
             if all(t_size):
-                line += (separator * t_size[1])
+                line += (separator * f_half + title + separator * s_half)
             else:
-                line += (separator * 20 + '\n')
+                line += (separator * 10 + title + separator * 10)
             line += '\033[' + str(col+1) + ';' + str(row) + 'H'
             line += symbol
         return line
 
     def input_line(self):
-        return self.get_line(self.input_col, self.input_row, self.input_separator, self.input_symbol)
+        return self.get_line(self.input_col, self.input_row, self.input_separator, self.input_symbol,self.input_title)
 
     def input_store_line(self):
-        return self.get_line(self.input_store_row, self.input_store_col, self.input_store_separator, self.input_store_symbol)
+        return self.get_line(self.input_store_row, self.input_store_col, self.input_store_separator, self.input_store_symbol,self.input_store_title)
 
     def additional_line(self):
-        return self.get_line(self.additional_store_row, self.additional_store_col, self.additional_store_separator, self.additional_store_symbol)
+        return self.get_line(self.additional_store_row, self.additional_store_col, self.additional_store_separator, '', self.additional_title)  # self.additional_store_symbol)
 
     @staticmethod
     def terminal_size():
@@ -130,10 +136,9 @@ class TerminalTail:
         return new_input
 
     def addition(self, addit: str = ''):
-        if self._additional_store:
-            self._additional_store = addit + '\n' + self.additional_store_symbol + self._additional_store
-        else:
-            self._additional_store = addit
+        if addit:
+            self._additional_store = self.additional_store_symbol + addit + '\n' + self._additional_store
+
         add_it = self._additional_store.split('\n')
         ###  screen size - addit pos
         ### len(add_it[i]) /colsScreen
