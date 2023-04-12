@@ -9,7 +9,6 @@ class Server(NetwokThread):
         self.sock.bind((address, port))
         self.sock.listen(10)
         self.listen()
-        self.on_send = False
 
     def close(self):
         self.is_run = False
@@ -38,11 +37,7 @@ class Server(NetwokThread):
 
     #  @staticmethod
     def send_data(self,connect, data, **kwargs):
-        while self.on_send:
-            pass
-        self.on_send = True
         stat = connect.__send__(data, **kwargs)
         if not stat:
             self.control.clean()
-        self.on_send = False
 
