@@ -146,9 +146,11 @@ class TerminalTail:
         print('\033[0;0;0m\033[0;0H\033[2J')
 
     def clear_addit(self):
+
         start = f"\033[{self.additional_store_col};{self.additional_store_row}H"  #  с начала блока
         end = "\033[J"  # до конца
         print(start+end)
+
 
 
 class TClient(Client):
@@ -163,18 +165,29 @@ class TClient(Client):
 
 
     def incoming(self, service_message, data, connect):
-        srv_msg = Message(service_message)
+        #print(service_message, data)
+        try:
+            srv_msg = Message(service_message)
+        except Exception as e:
+            pass
+            #print(e, service_message)
 
         if srv_msg.data_type == "message":
             message = data.decode()
+            print("\033[s")  # save cursor pos
             self.tail.clear_addit()
             #self.tail.input_store()
             self.tail.addition(message)
             #self.tail.input_store()
-            print(self.tail.input_line())
-            print('\033[2A')  # move cursor
+            #print(self.tail.input_line(), end="")
+            print("\033[u", end="\r")  # restore cursor position
+            #print(os.read(0, 1)) ## input
+            #print("\033[2A")  # move cursor 2up
+            #print("\033[2F")  # lines up
+            #print('\033[2C')  # move cursor 2right
         else:
-            print(service_message)
+            self.tail.addition(f"sevice message: {service_message}, data: {data}")
+            # print(service_message)
             #print('>')
             #print(self.tail.to_input_line())
             #self.tail.terminal_input()
