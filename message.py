@@ -35,6 +35,10 @@ class Message:
             self.__dict__.update(kwargs)
         if args:
             for jstr in args:
+                jstr = jstr.replace("'", '"')
+                jstr = jstr.replace("(", '[')
+                jstr = jstr.replace(",)", ']')
+                jstr = jstr.replace(")", ']')
                 self.json(jstr)
         return self.__dict__
 
@@ -56,7 +60,7 @@ class Message:
                 self(**_add)
                 return json.dumps(self.__dict__)
             except Exception as e:
-                print(f'can not update message from json {_json}, {e}')
+                return f'can not update message from json {_json}, {e}'
     def rm(self, *args):  # list of keys
         for key in args:
             if key in self.__dict__:
