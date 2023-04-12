@@ -13,12 +13,11 @@ class TerminalTail:
 
         self.input_col = 1
         self.input_row = 1
-        self.input_store_col_nums = 10
-        self.input_store_col = 4
-        self.input_store_row = 1
-        self.additional_store_col_nums = 4
-        self.additional_store_col = 16
-        self.additional_store_row = 0
+
+        self.input_store_row = 4
+        self.input_store_col = 1
+        self.additional_store_row = 16
+        self.additional_store_col = 0
 
         self.input_symbol = '>'
         self.input_separator = '-'
@@ -37,22 +36,27 @@ class TerminalTail:
         self._input_store =''
 
 
+    def auto_size(self):
+        t_row, t_col = self.terminal_size()
+        self.additional_store_row = t_row // 2
+
+
+
+
     def set_input(self,col=1, row=1, symbol ='>', separator =''):
         self.input_col = col
         self.input_row = row
         self.input_symbol = symbol
 
-    def set_input_store(self,col_nums=5,col=3,row=1,symbol='<',separator = '#'):
-        self.input_store_col_nums = col_nums
-        self.input_store_col = col
-        self.input_store_row = row
+    def set_input_store(self,col=3,row=1,symbol='<',separator = '#'):
+        self.input_store_row = col
+        self.input_store_col = row
         self.input_store_symbol = symbol
         self.input_store_separator = separator
 
-    def set_additional_store(self,col_nums=5,col=10,row=1,symbol=' ',separator = '*'):
-        self.additional_store_col_nums = col_nums
-        self.additional_store_col = col
-        self.additional_store_row = row
+    def set_additional_store(self,col=10,row=1,symbol=' ',separator = '*'):
+        self.additional_store_row = col
+        self.additional_store_col = row
         self.additional_store_symbol = symbol
         self.additional_store_separator = separator
 
@@ -100,10 +104,10 @@ class TerminalTail:
         return self.get_line(self.input_col, self.input_row, self.input_separator, self.input_symbol)
 
     def input_store_line(self):
-        return self.get_line(self.input_store_col,self.input_store_row,self.input_store_separator,self.input_store_symbol)
+        return self.get_line(self.input_store_row, self.input_store_col, self.input_store_separator, self.input_store_symbol)
 
     def additional_line(self):
-        return self.get_line(self.additional_store_col, self.additional_store_row, self.additional_store_separator, self.additional_store_symbol)
+        return self.get_line(self.additional_store_row, self.additional_store_col, self.additional_store_separator, self.additional_store_symbol)
 
     @staticmethod
     def terminal_size():
@@ -131,23 +135,59 @@ class TerminalTail:
         else:
             self._additional_store = addit
         add_it = self._additional_store.split('\n')
+        ###  screen size - addit pos
+        ### len(add_it[i]) /colsScreen
+        terow, tecol = self.terminal_size()
+        max_line_num = terow - self.additional_store_row - 2
+        l_count = 0
+        _new_store = ""
+        for line in add_it:
+            hold_line = (len(line) + self.additional_store_col) // tecol + 1
+            if l_count + hold_line > max_line_num:
+                free_lines = max_line_num - l_count
+                free_chars = free_lines * tecol
+                if free_chars:
+                    _new_store += line[:free_chars] + "\n"
+                break
+            if line:
+                l_count += hold_line
+                _new_store += line + "\n"
+        self._additional_store = _new_store  # + str(terow) + " - "+ str(tecol)
+        print(self.additional_line() + self._additional_store)
+
+    '''
         if len(add_it) > self.additional_store_col_nums:
             self._additional_store = '\n'.join(add_it[:-1])
         print(self.additional_line() + self._additional_store)
+    '''
 
     def input_store(self):
         store = self._input_store.split('\n')
-        if len(store) > self.input_store_col_nums:
-            self._input_store = '\n'.join(store[:-1])
-        print(self.input_store_line()+self._input_store)
+
+        terow, tecol = self.terminal_size()
+        max_line_num = terow - self.additional_store_row - self.input_store_row - 2
+        l_count = 0
+        _new_store = ""
+
+        for line in store:
+            hold_line = (len(line) + self.input_store_col) // tecol + 1
+            if l_count + hold_line > max_line_num:
+                break
+            if line:
+                l_count += hold_line
+                _new_store += line + "\n"
+        self._input_store = _new_store  # + str(terow) + " - "+ str(tecol)
+        print(self.input_store_line() + self._input_store)
+
 
 
     def clear(self):
+        self.auto_size()
         print('\033[0;0;0m\033[0;0H\033[2J')
 
     def clear_addit(self):
-
-        start = f"\033[{self.additional_store_col};{self.additional_store_row}H"  #  с начала блока
+        self.auto_size()
+        start = f"\033[{self.additional_store_row};{self.additional_store_col}H"  #  с начала блока
         end = "\033[J"  # до конца
         print(start+end)
 
@@ -166,8 +206,9 @@ class TClient(Client):
 
     def incoming(self, service_message, data, connect):
         #print(service_message, data)
+        srv_msg = Message()
         try:
-            srv_msg = Message(service_message)
+            srv_msg(service_message)
         except Exception as e:
             pass
             #print(e, service_message)
