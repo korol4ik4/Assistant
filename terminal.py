@@ -29,9 +29,9 @@ class TerminalAssistant(Assistant):
             raise ValueError("connect is impossible: ",connect)
         elif len(args) == 1:
             if args[0] == 'all':
-                tsk(list_task = True)
+                tsk(list_task = True, tlist = [])
             elif args[0] == 'nix':
-                tsk(list_task = False)
+                tsk(list_task = False, tlist = [])
             elif args[0] in self.all_plugins.keys():
                 tsk(list_task = True, tlist=[args[0],] )
         else:
@@ -59,9 +59,9 @@ class TerminalAssistant(Assistant):
         evn  = Message()
         if args:
             if args[0] == 'all':
-                evn(list_event = True)
+                evn(list_event = True, elist = [])
             elif args[0] == 'nix':
-                evn(list_event = False)
+                evn(list_event = False,  elist = [])
             else:  # names of Plugin
                 # test: Plugin with name is loaded
                 evn(elist = [name for name in args if name in self.all_plugins.keys()])
