@@ -61,6 +61,11 @@ class SpeechToTextPlugin(Plugin):
             lang = cmd[len('language_'):]
             self.set_lang(lang)
             self.post_message(info= "language changed " + lang)
+            ## TEST ##
+        # elif "get_queue" in cmd:
+            # self.post_message(queue =  self.stt.que)
+            # event add {"sender":"TTS", "command":"get_queue"}
+            # task add TTS STT {"command":"*"}
 
     def close(self):  # выйти из бесконечного цикла (внутри модуля stt_vosk) перед закрытием программы / плагина
         if self.stt:
