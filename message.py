@@ -61,6 +61,7 @@ class Message:
                 return json.dumps(self.__dict__)
             except Exception as e:
                 return f'can not update message from json {_json}, {e}'
+
     def rm(self, *args):  # list of keys
         for key in args:
             if key in self.__dict__:
