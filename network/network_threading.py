@@ -14,47 +14,40 @@ class NetwokThread:
         self.control = ServerControl()
         self.client_connected=False
 
-
-    def listen(self):
-        lst_thr = Thread(target=self._listen, name=f'wait accept')
+    def accept_thread(self, address, port):
+        self.sock.bind((address, port))
+        self.sock.listen(10)
+        lst_thr = Thread(target=self._accept, name=f'wait accept')
         lst_thr.start()
+        return lst_thr
 
-    def _listen(self):
+    def _accept(self):
         if not self.is_run:
             return  # Exit
         try:
             accept = self.sock.__accept__()
-            #print(f'connected to {accept[1]}')
             connect, address = accept
-
-            connect.sock.settimeout(self.session_timeout)
-
-            thr_session = Thread(target=connect.__session__,name=f'connected_to {address}')
-            thr_session.start()
-            #print('connected ', address)
-            tm = time()
-            while time() - tm < 5:
-                if connect.session:
-                    break
+            connect.__settimeout__(self.session_timeout)
+            if not connect.__session__(server_session= True):
+                raise Exception("fail to access or create session")
             if connect.session:
-                thr_recv = Thread(target=self._recv_loop, args=(connect,), name=f'receive loop {address}')
-                thr_recv.start()
+                thr_recv = self.recv_loop_thread(connect)
                 self.control.append_connect_thread(connect,thr_recv)
                 self.control.update_keys(connect,connect.coder.get,connect.session)
             else:
                 connect.sock.close()
         except BaseException as e:
-            print('ошибка :D', e)
+            print('ошибка :D или выход сервера', e)
         finally:
-            self._listen()
+            self._accept()
 
     def _connect(self,address,port):  # client
         self.sock.connect((address,port))
-        self.sock.settimeout(self.session_timeout)
+        self.sock.__settimeout__(self.session_timeout)
         self.client_connected = True
         self.is_run = True
 
-    def connect(self,address,port):
+    def connect_thread(self, address, port):
         cnct_thr = Thread(target=self._connect, args=(address,port))
         cnct_thr.start()
         tm = time()
@@ -63,17 +56,25 @@ class NetwokThread:
         if not self.client_connected:
             self.sock.close()
             raise ConnectionError('client is not connected')
+        return cnct_thr
 
+    def recv_loop_thread(self, connect, buffer_size=4096):
+        if connect.session:
+            thr_recv = Thread(target=self._recv_loop, args=(connect,buffer_size), name=f'receive loop {connect}')
+            thr_recv.start()
+            return thr_recv
 
     def _recv_loop(self, connect, buffer_size=4096):
         fail=0
         while self.is_run and fail < 10:
             try:
                 service_message, data = connect.__recv_data__(buffer_size)
+                #  тут проверка на stream
+                # и начало stream
                 self.incoming(service_message, data, connect)
                 fail=0
             except ConnectionError as e:
-                print(e, 'connect server error')
+                print(e, 'connect error')
                 break
             except BaseException as e:
                 #print(e, 'server BaseException')

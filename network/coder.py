@@ -6,7 +6,8 @@ class Coder:
         self.setted = False
         self.set(de_key, en_key)
 
-    def generate_key(self):
+    @staticmethod
+    def generate_key():
         return Fernet.generate_key()
 
     def get(self):
